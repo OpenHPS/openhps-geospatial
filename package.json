@@ -1,5 +1,5 @@
 {
-  "name": "@openhps/symbolic",
+  "name": "@openhps/spaces",
   "version": "0.1.0-alpha.0",
   "description": "Open Hybrid Positioning System",
   "author": "Maxim Van de Wynckel",
@@ -19,8 +19,8 @@
     "require": "./dist/cjs/index.js",
     "import": "./dist/esm/index.js"
   },
-  "unpkg": "dist/web/openhps-symbolic.min.js",
-  "jsdelivr": "dist/web/openhps-symbolic.min.js",
+  "unpkg": "dist/web/openhps-spaces.min.js",
+  "jsdelivr": "dist/web/openhps-spaces.min.js",
   "files": [
     "dist/**/*",
     "src/**/*"

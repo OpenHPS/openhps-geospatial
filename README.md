@@ -1,19 +1,19 @@
 <h1 align="center">
   <img alt="OpenHPS" src="https://openhps.org/images/logo_text-512.png" width="40%" /><br />
-  @openhps/symbolic
+  @openhps/spaces
 </h1>
 <p align="center">
-    <a href="https://ci.mvdw-software.com/job/openhps-symbolic/" target="_blank">
-        <img alt="Build Status" src="https://ci.mvdw-software.com/job/openhps-symbolic/job/dev/badge/icon">
+    <a href="https://ci.mvdw-software.com/job/openhps-spaces/" target="_blank">
+        <img alt="Build Status" src="https://ci.mvdw-software.com/job/openhps-spaces/job/dev/badge/icon">
     </a>
-    <a href="https://ci.mvdw-software.com/view/OpenHPS/job/openhps-symbolic/job/dev/lastCompletedBuild/testReport" target="_blank">
-        <img alt="Tests" src="https://img.shields.io/jenkins/tests?compact_message&jobUrl=https%3A%2F%2Fci.mvdw-software.com%2Fview%2FOpenHPS%2Fjob%2Fopenhps-symbolic%2Fjob%2Fdev">
+    <a href="https://ci.mvdw-software.com/view/OpenHPS/job/openhps-spaces/job/dev/lastCompletedBuild/testReport" target="_blank">
+        <img alt="Tests" src="https://img.shields.io/jenkins/tests?compact_message&jobUrl=https%3A%2F%2Fci.mvdw-software.com%2Fview%2FOpenHPS%2Fjob%2Fopenhps-spaces%2Fjob%2Fdev">
     </a>
-    <a href="https://ci.mvdw-software.com/view/OpenHPS/job/openhps-symbolic/job/dev/lastCompletedBuild/cobertura/" target="_blank">
-        <img alt="Code coverage" src="https://img.shields.io/jenkins/coverage/cobertura?jobUrl=https%3A%2F%2Fci.mvdw-software.com%2Fview%2FOpenHPS%2Fjob%2Fopenhps-symbolic%2Fjob%2Fdev%2F">
+    <a href="https://ci.mvdw-software.com/view/OpenHPS/job/openhps-spaces/job/dev/lastCompletedBuild/cobertura/" target="_blank">
+        <img alt="Code coverage" src="https://img.shields.io/jenkins/coverage/cobertura?jobUrl=https%3A%2F%2Fci.mvdw-software.com%2Fview%2FOpenHPS%2Fjob%2Fopenhps-spaces%2Fjob%2Fdev%2F">
     </a>
-    <a href="https://codeclimate.com/github/OpenHPS/openhps-symbolic/" target="_blank">
-        <img alt="Maintainability" src="https://img.shields.io/codeclimate/maintainability/OpenHPS/openhps-symbolic">
+    <a href="https://codeclimate.com/github/OpenHPS/openhps-spaces/" target="_blank">
+        <img alt="Maintainability" src="https://img.shields.io/codeclimate/maintainability/OpenHPS/openhps-spaces">
     </a>
 </p>
 
@@ -24,9 +24,9 @@
 <br />
 
 ## Getting Started
-If you have [npm installed](https://www.npmjs.com/get-npm), start using @openhps/symbolic with the following command.
+If you have [npm installed](https://www.npmjs.com/get-npm), start using @openhps/spaces with the following command.
 ```bash
-npm install @openhps/symbolic --save
+npm install @openhps/spaces --save
 ```
 
 ## Contributors

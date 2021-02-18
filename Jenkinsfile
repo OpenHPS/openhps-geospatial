@@ -71,10 +71,10 @@ pipeline {
                 reportFiles: '*.*',
                 reportName: "Documentation"
             ])
-            archiveArtifacts artifacts: 'dist/web/openhps-symbolic.js', fingerprint: true
-            archiveArtifacts artifacts: 'dist/web/openhps-symbolic.js.map', fingerprint: true
-            archiveArtifacts artifacts: 'dist/web/openhps-symbolic.min.js', fingerprint: true
-            archiveArtifacts artifacts: 'dist/web/openhps-symbolic.min.js.map', fingerprint: true
+            archiveArtifacts artifacts: 'dist/web/openhps-spaces.js', fingerprint: true
+            archiveArtifacts artifacts: 'dist/web/openhps-spaces.js.map', fingerprint: true
+            archiveArtifacts artifacts: 'dist/web/openhps-spaces.min.js', fingerprint: true
+            archiveArtifacts artifacts: 'dist/web/openhps-spaces.min.js.map', fingerprint: true
             deleteDir()
         }
     }

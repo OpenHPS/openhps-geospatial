@@ -1,5 +1,5 @@
-const PROJECT_NAME = "openhps-symbolic";
-const LIBRARY_NAME = "@openhps/symbolic";
+const PROJECT_NAME = "openhps-spaces";
+const LIBRARY_NAME = "@openhps/spaces";
 
 const path = require('path');
 

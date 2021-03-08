@@ -1,11 +1,9 @@
-import { GeographicalPosition, SerializableObject } from "@openhps/core";
-import { SymbolicSpace } from "./SymbolicSpace";
+import { Absolute2DPosition, GeographicalPosition, SerializableObject } from '@openhps/core';
+import { SymbolicSpace } from './SymbolicSpace';
 
 @SerializableObject()
 export class Building extends SymbolicSpace<GeographicalPosition> {
-    
-    public setBounds(bounds: GeographicalPosition[]): this {
-        return super.setBounds(bounds);
+    public getLocalBounds(): Absolute2DPosition[] {
+        return undefined;
     }
-    
 }

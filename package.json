@@ -57,7 +57,7 @@
     "@babel/preset-env": "^7.12.13",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
-    "@openhps/core": "^0.2.0-alpha.26",
+    "@openhps/core": "^0.2.0-alpha.32",
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.2.0",
     "@types/node": "^12.19.9",

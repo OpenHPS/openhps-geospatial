@@ -3,11 +3,13 @@ import 'mocha';
 import { 
     Absolute2DPosition, 
     Absolute3DPosition, 
+    GeographicalPosition, 
     Vector3
 } from '@openhps/core';
 import {
     Building,
     Floor,
+    Room,
     SymbolicSpace
 } from '../../src';
 
@@ -68,11 +70,25 @@ describe('position', () => {
 
         describe('conversion', () => {
             const building = new Building("Pleinlaan 9")
-                .setBounds([
-
-                ]);
+                .setBounds({
+                    topLeft: new GeographicalPosition(
+                        50.82092766614649, 
+                        4.39233427105046
+                    ),
+                    width: 46.275,
+                    height: 37.27,
+                    rotation: 45
+                });
             const floor = new Floor("3")
-                .setFloorNumber(3);
+                .setBuilding(building)
+                .setFloorNumber(3)
+                .setBounds(building.getLocalBounds());
+            const office = new Room("3.58")
+                .setFloor(floor)
+                .setBounds([
+                    new Absolute2DPosition(0, 0),
+                    new Absolute2DPosition(5, 4),
+                ]);
         });
         
     });

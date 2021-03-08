@@ -1,1 +1,1 @@
-export * from './GeocoderService';
+export * from './SpaceGeocoderService';

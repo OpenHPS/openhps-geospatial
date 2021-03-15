@@ -3,7 +3,10 @@ import 'mocha';
 import { 
     Absolute2DPosition, 
     Absolute3DPosition, 
+    DataObject, 
+    GCS, 
     GeographicalPosition, 
+    LengthUnit, 
     Vector3
 } from '@openhps/core';
 import {
@@ -24,10 +27,10 @@ describe('position', () => {
                     new Absolute2DPosition(5, 5),
                     new Absolute2DPosition(10, 10)
                 ]);
-                expect(office.getBounds()[0].toVector3()).to.deep.equal(new Vector3(5, 5, 0));
-                expect(office.getBounds()[1].toVector3()).to.deep.equal(new Vector3(10, 5, 0));
-                expect(office.getBounds()[2].toVector3()).to.deep.equal(new Vector3(10, 10, 0));
-                expect(office.getBounds()[3].toVector3()).to.deep.equal(new Vector3(5, 10, 0));
+                expect(office.getBounds()[1].toVector3()).to.deep.equal(new Vector3(5, 5, 0));
+                expect(office.getBounds()[2].toVector3()).to.deep.equal(new Vector3(10, 5, 0));
+                expect(office.getBounds()[3].toVector3()).to.deep.equal(new Vector3(10, 10, 0));
+                expect(office.getBounds()[0].toVector3()).to.deep.equal(new Vector3(5, 10, 0));
                 expect(office.toPosition().x).to.equal(7.5);
                 expect(office.toPosition().y).to.equal(7.5);
             });
@@ -72,23 +75,51 @@ describe('position', () => {
             const building = new Building("Pleinlaan 9")
                 .setBounds({
                     topLeft: new GeographicalPosition(
-                        50.82092766614649, 
-                        4.39233427105046
+                        50.8203726927966, 4.392241309019189
                     ),
                     width: 46.275,
                     height: 37.27,
-                    rotation: 45
+                    rotation: -34.04
                 });
             const floor = new Floor("3")
                 .setBuilding(building)
-                .setFloorNumber(3)
-                .setBounds(building.getLocalBounds());
+                .setFloorNumber(3);
             const office = new Room("3.58")
                 .setFloor(floor)
                 .setBounds([
-                    new Absolute2DPosition(0, 0),
-                    new Absolute2DPosition(5, 4),
+                    new Absolute2DPosition(4.75, 31.25),
+                    new Absolute2DPosition(8.35, 37.02),
                 ]);
+
+            it('building should support rectangular boundaries', () => {
+                const bounds = building.getBounds();
+                expect(Math.round(bounds[1].distanceTo(bounds[2]) * 1000) / 1000).to.equal(46.275);
+                expect(Math.round(bounds[0].distanceTo(bounds[1]) * 100) / 100).to.equal(37.27);
+            });
+
+            it('building should support local boundaries', () => {
+                const bounds = building.getLocalBounds();
+                expect(bounds.length).to.equal(4);
+            });
+            
+            it('should support transforming a 2d position to geographical position', () => {
+                const pos = building.transform(new Absolute2DPosition(5, 37));
+            });
+
+            it('should support transforming a geographical position to 2d', () => {
+                const pos = building.transform(new GeographicalPosition(50.820728049498236, 4.391975920396202));
+
+            });
+
+            it('floor should use local boundaries of a building', () => {
+                const bounds = floor.getBounds().map(b => b.toVector3());
+                expect(bounds.length).to.equal(4);
+            });
+
+            it('should convert a position in the office to a geographical position', () => {
+                const object = new DataObject();
+                object.setPosition(office.toPosition(), office);
+            });
         });
         
     });

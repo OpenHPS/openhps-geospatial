@@ -6,6 +6,7 @@ import { SymbolicSpace } from './SymbolicSpace';
 export class Floor extends SymbolicSpace<Absolute2DPosition> {
     public setBuilding(building: Building): this {
         this.parent = building;
+        this.setBounds(building.getLocalBounds());
         return this;
     }
 

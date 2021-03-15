@@ -4,8 +4,10 @@ import {
     Vector3,
     AbsolutePosition,
     ReferenceSpace,
-    UnitValue,
     SerializableMapMember,
+    AngleUnit,
+    Euler,
+    LengthUnit,
 } from '@openhps/core';
 
 /**
@@ -106,7 +108,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             // Rectangle boundary
             this._setRectangleBounds(bounds);
         }
-
         this._update();
         return this;
     }
@@ -115,7 +116,20 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     private _setRectangleBounds(bounds: RectangleCornerBoundary<T>): void;
     private _setRectangleBounds(bounds: any): void {
         if ('width' in bounds) {
-            const topRight: Vector3 = bounds.topLeft.toVector3();
+            const eulerRotation = new Euler(0, 0, bounds.rotation, 'XYZ', AngleUnit.DEGREE);
+            this.rotation(eulerRotation);
+            const topRight = bounds.topLeft.toVector3(LengthUnit.METER);
+            topRight.add(new Vector3(bounds.width, 0, 0).applyEuler(eulerRotation));
+            const bottomLeft = bounds.topLeft.toVector3(LengthUnit.METER);
+            bottomLeft.add(new Vector3(0, bounds.height, 0).applyEuler(eulerRotation));
+            const bottomRight = bounds.topLeft.toVector3(LengthUnit.METER);
+            bottomRight.add(new Vector3(bounds.width, bounds.height, 0).applyEuler(eulerRotation));
+            this._setArrayBounds([
+                bounds.topLeft.clone().fromVector(bottomLeft, LengthUnit.METER),
+                bounds.topLeft,
+                bounds.topLeft.clone().fromVector(topRight, LengthUnit.METER),
+                bounds.topLeft.clone().fromVector(bottomRight, LengthUnit.METER),
+            ]);
         } else {
             this._setArrayBounds([bounds.topLeft, bounds.bottomRight]);
         }
@@ -123,18 +137,18 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     private _setArrayBounds(bounds: T[]): void {
         this.positionConstructor = bounds[0].constructor as new () => T;
-        const points = bounds.map((bound) => bound.toVector3());
+        const points = bounds.map((bound) => bound.toVector3(LengthUnit.METER));
 
         if (bounds.length === 2) {
             // Top left and bottom right
             const topLeft = points[0];
             const bottomRight = points[1];
             const diff = bottomRight.clone().sub(topLeft);
-            this.points.push(topLeft);
 
             const zCount = points.map((p) => p.z).reduce((a, b) => a + b);
             if (zCount !== 0) {
                 // 3D
+                this.points.push(topLeft);
                 this.points.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
                 this.points.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
                 this.points.push(topLeft.clone().add(new Vector3(diff.x, diff.y, 0)));
@@ -144,9 +158,10 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 this.points.push(bottomRight);
             } else {
                 // 2D
+                this.points.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
+                this.points.push(topLeft);
                 this.points.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
                 this.points.push(bottomRight);
-                this.points.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
             }
         } else {
             // Polygon
@@ -162,7 +177,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     public getBounds(): T[] {
         return this.points.map((point) => {
             const position = new this.positionConstructor();
-            position.fromVector(point);
+            position.fromVector(point, LengthUnit.METER);
             return position;
         });
     }
@@ -228,7 +243,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {AbsolutePosition} Absolute position
      */
     public toPosition(): T {
-        return this.transform(this.centroid) as T;
+        return this.centroid as T;
     }
 }
 

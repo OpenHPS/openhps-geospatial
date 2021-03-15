@@ -1,10 +1,14 @@
-import { AbsolutePosition, DataObjectService } from '@openhps/core';
+import { AbsolutePosition, DataObjectService, DataServiceDriver } from '@openhps/core';
 import { SymbolicSpace } from '../data';
 
 /**
  * Geocorder service for reverse geocoding a position to a symbolic space.
  */
-export class SpaceGeocoderService<T extends SymbolicSpace<any>> extends DataObjectService<T> {
+export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObjectService<T> {
+    constructor(dataServiceDriver?: DataServiceDriver<string, T>) {
+        super(dataServiceDriver);
+    }
+
     /**
      * Find symbolic spaces and their probability using an absolute position
      * Perform reverse geocoding on an absolute position.
@@ -14,7 +18,11 @@ export class SpaceGeocoderService<T extends SymbolicSpace<any>> extends DataObje
      */
     public findSymbolicSpaces(position: AbsolutePosition): Promise<Array<[SymbolicSpace<any>, number]>> {
         return new Promise((resolve, reject) => {
-            this.findAll({});
+            this.findAll({
+                $geoWithin: {
+                    $polygon: {},
+                },
+            } as any);
         });
     }
 }

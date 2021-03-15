@@ -31,6 +31,24 @@ pipeline {
         }
         stage('Publish') {
             parallel {
+                    stage('Publish Artifacts') {
+                    steps {
+                        junit 'artifacts/test/xunit.xml'
+                        cobertura coberturaReportFile: 'artifacts/coverage/cobertura-coverage.xml'
+                        publishHTML (target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'docs/out',
+                            reportFiles: '*.*',
+                            reportName: "Documentation"
+                        ])
+                        archiveArtifacts artifacts: 'dist/web/openhps-spaces.js', fingerprint: true
+                        archiveArtifacts artifacts: 'dist/web/openhps-spaces.js.map', fingerprint: true
+                        archiveArtifacts artifacts: 'dist/web/openhps-spaces.min.js', fingerprint: true
+                        archiveArtifacts artifacts: 'dist/web/openhps-spaces.min.js.map', fingerprint: true
+                    }
+                }
                 stage('Publish Development') {
                     when {
                         branch "dev"
@@ -61,20 +79,6 @@ pipeline {
     }
     post {
         always {
-            junit 'artifacts/test/xunit.xml'
-            cobertura coberturaReportFile: 'artifacts/coverage/cobertura-coverage.xml'
-            publishHTML (target: [
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'docs/out',
-                reportFiles: '*.*',
-                reportName: "Documentation"
-            ])
-            archiveArtifacts artifacts: 'dist/web/openhps-spaces.js', fingerprint: true
-            archiveArtifacts artifacts: 'dist/web/openhps-spaces.js.map', fingerprint: true
-            archiveArtifacts artifacts: 'dist/web/openhps-spaces.min.js', fingerprint: true
-            archiveArtifacts artifacts: 'dist/web/openhps-spaces.min.js.map', fingerprint: true
             deleteDir()
         }
     }

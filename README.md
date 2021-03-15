@@ -18,7 +18,7 @@
 </p>
 
 <h3 align="center">
-    <a href="https://github.com/OpenHPS/openhps-core">@openhps/core</a> &mdash; <a href="https://openhps.org/docs/csv">API</a>
+    <a href="https://github.com/OpenHPS/openhps-core">@openhps/core</a> &mdash; <a href="https://openhps.org/docs/spaces">API</a>
 </h3>
 
 <br />
@@ -27,6 +27,28 @@
 If you have [npm installed](https://www.npmjs.com/get-npm), start using @openhps/spaces with the following command.
 ```bash
 npm install @openhps/spaces --save
+```
+### Usage
+
+```typescript
+const building = new Building("Pleinlaan 9")
+    .setBounds({
+        topLeft: new GeographicalPosition(
+            50.8203726927966, 4.392241309019189
+        ),
+        width: 46.275,
+        height: 37.27,
+        rotation: -34.04
+    });
+const floor = new Floor("3")
+    .setBuilding(building)
+    .setFloorNumber(3);
+const office = new Room("3.58")
+    .setFloor(floor)
+    .setBounds([
+        new Absolute2DPosition(4.75, 31.25),
+        new Absolute2DPosition(8.35, 37.02),
+    ]);
 ```
 
 ## Contributors

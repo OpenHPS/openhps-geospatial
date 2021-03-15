@@ -90,6 +90,12 @@ describe('position', () => {
                     new Absolute2DPosition(4.75, 31.25),
                     new Absolute2DPosition(8.35, 37.02),
                 ]);
+            const lab = new Room("3.58")
+                .setFloor(floor)
+                .setBounds([
+                    new Absolute2DPosition(13.15, 31.25),
+                    new Absolute2DPosition(25.15, 37.02),
+                ]);
 
             it('building should support rectangular boundaries', () => {
                 const bounds = building.getBounds();

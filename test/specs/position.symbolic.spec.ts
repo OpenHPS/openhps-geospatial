@@ -101,11 +101,13 @@ describe('position', () => {
                 const bounds = building.getBounds();
                 expect(Math.round(bounds[1].distanceTo(bounds[2]) * 1000) / 1000).to.equal(46.275);
                 expect(Math.round(bounds[0].distanceTo(bounds[1]) * 100) / 100).to.equal(37.27);
+                console.log(bounds.map(b => b.toArray()))
             });
 
             it('building should support local boundaries', () => {
                 const bounds = building.getLocalBounds();
                 expect(bounds.length).to.equal(4);
+                console.log(bounds.map(b => b.toArray()))
             });
             
             it('should support transforming a 2d position to geographical position', () => {

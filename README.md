@@ -28,8 +28,9 @@ If you have [npm installed](https://www.npmjs.com/get-npm), start using @openhps
 ```bash
 npm install @openhps/spaces --save
 ```
-### Usage
+## Usage
 
+### Creating Symbolic Spaces 
 ```typescript
 const building = new Building("Pleinlaan 9")
     .setBounds({
@@ -49,6 +50,34 @@ const office = new Room("3.58")
         new Absolute2DPosition(4.75, 31.25),
         new Absolute2DPosition(8.35, 37.02),
     ]);
+const lab = new Room("3.58")
+    .setFloor(floor)
+    .setBounds([
+        new Absolute2DPosition(13.15, 31.25),
+        new Absolute2DPosition(25.15, 37.02),
+    ]);
+```
+
+### Transforming Positions
+```typescript
+office.toPosition(); // (6.55, 34.135)
+office.transform(office.toPosition()); // (lat: 50.8204372851, lng: 4.39222609676)
+```
+
+### Updating Position
+```typescript
+const object = new DataObject("mvdewync");
+object.setPosition(new Absolute2DPosition(
+    6.55,
+    34.135,
+    LengthUnit.METER
+), office);
+
+// Position relative to the global reference space (geographical)
+office.getPosition(); // (lat: 50.8204372851, lng: 4.39222609676)
+
+// Position relative to the floor
+office.getPosition(floor); // (6.55, 34.135)
 ```
 
 ## Contributors

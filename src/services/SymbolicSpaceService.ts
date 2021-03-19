@@ -18,11 +18,19 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
      */
     public findSymbolicSpaces(position: AbsolutePosition): Promise<Array<[SymbolicSpace<any>, number]>> {
         return new Promise((resolve, reject) => {
+            const vector = position.toVector3();
             this.findAll({
-                $geoWithin: {
-                    $polygon: {},
+                $geoIntersects: {
+                    $geometry: {
+                        type: 'Point',
+                        coordinates: [vector.x, vector.y],
+                    },
                 },
-            } as any);
+            } as any)
+                .then((results) => {
+                    resolve(undefined);
+                })
+                .catch(reject);
         });
     }
 }

@@ -10,6 +10,11 @@ import {
 } from '@openhps/core';
 import { SymbolicSpace } from './SymbolicSpace';
 
+/**
+ * A building is a symbolic space that uses geographical positions as its boundaries.
+ * Each building has a local boundary with an origin (0, 0) that can be used to determine
+ * to position within the building.
+ */
 @SerializableObject()
 export class Building extends SymbolicSpace<GeographicalPosition> {
     public setBounds(bounds: any): this {

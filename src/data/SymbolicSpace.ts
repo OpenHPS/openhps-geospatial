@@ -68,7 +68,7 @@ import {
  * a single result. Similar to geocoders, the results are sorted based on their
  * probability.
  *
- * For this, we make use of the [[GeocoderService]]. This service acts as the data store for
+ * For this, we make use of the [[SymbolicSpaceService]]. This service acts as the data store for
  * symbolic spaces.
  * ```typescript
  *
@@ -233,7 +233,14 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         return Array.from(this.connectedSpaces.values()).includes(space.uid);
     }
 
-    public addConnectedSpace(space: SymbolicSpace<any>, position?: AbsolutePosition): this {
+    /**
+     * Add a connected space
+     *
+     * @param {SymbolicSpace} space Connected space
+     * @param {AbsolutePosition} [position] Position of connection
+     */
+    public addConnectedSpace(space: SymbolicSpace<any>, position?: T): this {
+        this.connectedSpaces.set(position.toVector3(), space.uid);
         return this;
     }
 

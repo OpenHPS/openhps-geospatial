@@ -8,6 +8,9 @@ import {
     AngleUnit,
     Euler,
     LengthUnit,
+    SerializableMember,
+    DataSerializer,
+    AbsolutePositionDeserializer,
 } from '@openhps/core';
 
 /**
@@ -87,10 +90,25 @@ import {
 export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     @SerializableArrayMember(Vector3)
     protected points: Vector3[] = [];
+    @SerializableMember({
+        serializer: (constructor) => {
+            return constructor.name;
+        },
+        deserializer: (constructorName) => {
+            return DataSerializer.findTypeByName(constructorName);
+        },
+    })
     protected positionConstructor: new () => T;
-    protected centroid: AbsolutePosition;
+    @SerializableMember({
+        deserializer: AbsolutePositionDeserializer,
+    })
+    public centroid: AbsolutePosition;
     @SerializableMapMember(Vector3, String)
     protected connectedSpaces: Map<Vector3, string> = new Map();
+    @SerializableMember({
+        constructor: Number,
+    })
+    public priority = 0;
 
     constructor(displayName?: string) {
         super();
@@ -191,7 +209,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     /**
      * Set the parent symbolic location
      *
-     * @param {SymbolicLocation} loc Parent symbolic location
+     * @param {SymbolicSpace} loc Parent symbolic location
      */
     public set parent(loc: SymbolicSpace<any>) {
         super.parent = loc;

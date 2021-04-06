@@ -9,6 +9,7 @@ import { SymbolicSpace } from './SymbolicSpace';
 export class Room extends SymbolicSpace<Absolute2DPosition> {
     public setFloor(floor: Floor): this {
         this.parent = floor;
+        this.priority = floor.priority + 1;
         return this;
     }
 }

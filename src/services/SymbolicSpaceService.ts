@@ -18,17 +18,15 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
      */
     public findSymbolicSpaces(position: AbsolutePosition): Promise<Array<[SymbolicSpace<any>, number]>> {
         return new Promise((resolve, reject) => {
-            const vector = position.toVector3();
-            this.findAll({
-                $geoIntersects: {
-                    $geometry: {
-                        type: 'Point',
-                        coordinates: [vector.x, vector.y],
-                    },
-                },
-            } as any)
+            this.findAll()
                 .then((results) => {
-                    resolve(undefined);
+                    // TODO: In memory, use geospatial queries instead
+                    resolve(
+                        results
+                            .filter((res) => res.isInside(position))
+                            .sort((a, b) => b.priority - a.priority)
+                            .map((res) => [res, res.priority]),
+                    );
                 })
                 .catch(reject);
         });

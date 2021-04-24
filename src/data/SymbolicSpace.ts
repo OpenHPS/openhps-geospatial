@@ -287,6 +287,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 uid: this.uid,
                 parent_uid: this.parentUID,
                 priority: this.priority,
+                type: this.constructor.name,
             },
         };
     }

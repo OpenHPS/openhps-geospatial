@@ -3,3 +3,4 @@ export * from './Room';
 export * from './Building';
 export * from './Floor';
 export * from './Corridor';
+export * from './Zone';

@@ -1,15 +1,8 @@
-import { Absolute2DPosition, SerializableObject } from '@openhps/core';
-import { Floor } from './Floor';
-import { SymbolicSpace } from './SymbolicSpace';
+import { SerializableObject } from '@openhps/core';
+import { Zone } from './Zone';
 
 /**
  * A room represents a symbolic space inside a floor.
  */
 @SerializableObject()
-export class Room extends SymbolicSpace<Absolute2DPosition> {
-    public setFloor(floor: Floor): this {
-        this.parent = floor;
-        this.priority = floor.priority + 1;
-        return this;
-    }
-}
+export class Room extends Zone {}

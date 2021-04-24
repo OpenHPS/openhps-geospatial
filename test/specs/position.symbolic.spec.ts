@@ -12,14 +12,39 @@ import {
 import {
     Building,
     Floor,
-    Hallway,
+    Corridor,
     Room,
     SymbolicSpace
 } from '../../src';
 
 describe('position', () => {
     describe('symbolic space', () => {
-    
+        describe('geojson', () => {
+            const building = new Building("Pleinlaan 9")
+                .setBounds({
+                    topLeft: new GeographicalPosition(
+                        50.8203726927966, 4.392241309019189
+                    ),
+                    width: 46.275,
+                    height: 37.27,
+                    rotation: -34.04
+                });
+            const floor = new Floor("3")
+                .setBuilding(building)
+                .setFloorNumber(3);
+            const office = new Room("3.58")
+                .setFloor(floor)
+                .setBounds([
+                    new Absolute2DPosition(4.75, 31.25),
+                    new Absolute2DPosition(8.35, 37.02),
+                ]);
+            
+            it('should be convertable to geojson', () => {
+                office.toGeoJSON()
+            });
+
+        });
+
         describe('boundaries', () => {
 
             it('should create a 2D boundary from the TL and BR points', () => {
@@ -103,7 +128,7 @@ describe('position', () => {
                     new Absolute2DPosition(27.55, 24.105),
                     new Absolute2DPosition(35.95, 29.5),
                 ]);
-            const hallway = new Hallway()
+            const hallway = new Corridor()
                 .setFloor(floor)
                 .setBounds([
                     new Absolute2DPosition(2.39, 6.015),
@@ -140,6 +165,12 @@ describe('position', () => {
             it('should support transforming a geographical position to 2d', () => {
                 const pos = building.transform(new GeographicalPosition(50.820728049498236, 4.391975920396202));
 
+            });
+
+            it('should find a floorr', () => {
+                const pos = new Absolute2DPosition(20.45354852804289, 39.14921958288905);
+                const inside = floor.isInside(pos);
+                console.log(inside);
             });
 
             it('floor should use local boundaries of a building', () => {

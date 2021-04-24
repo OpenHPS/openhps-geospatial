@@ -89,7 +89,7 @@ import {
 @SerializableObject()
 export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     @SerializableArrayMember(Vector3)
-    protected points: Vector3[] = [];
+    protected coordinates: Vector3[] = [];
     @SerializableMember({
         serializer: (constructor) => {
             return constructor.name;
@@ -166,24 +166,24 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             const zCount = points.map((p) => p.z).reduce((a, b) => a + b);
             if (zCount !== 0) {
                 // 3D
-                this.points.push(topLeft);
-                this.points.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
-                this.points.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
-                this.points.push(topLeft.clone().add(new Vector3(diff.x, diff.y, 0)));
-                this.points.push(topLeft.clone().add(new Vector3(diff.x, 0, diff.z)));
-                this.points.push(topLeft.clone().add(new Vector3(0, diff.y, diff.z)));
-                this.points.push(topLeft.clone().add(new Vector3(0, 0, diff.z)));
-                this.points.push(bottomRight);
+                this.coordinates.push(topLeft);
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, diff.y, 0)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, diff.z)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, diff.z)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(0, 0, diff.z)));
+                this.coordinates.push(bottomRight);
             } else {
                 // 2D
-                this.points.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
-                this.points.push(topLeft);
-                this.points.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
-                this.points.push(bottomRight);
+                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
+                this.coordinates.push(topLeft);
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
+                this.coordinates.push(bottomRight);
             }
         } else {
             // Polygon
-            this.points = points;
+            this.coordinates = points;
         }
     }
 
@@ -193,7 +193,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {AbsolutePosition[]} Array of boundary position
      */
     public getBounds(): T[] {
-        return this.points.map((point) => {
+        return this.coordinates.map((point) => {
             const position = new this.positionConstructor();
             position.fromVector(point, LengthUnit.METER);
             return position;
@@ -202,7 +202,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     private _update(): void {
         this.centroid = new this.positionConstructor();
-        const centerPoint = this.points.reduce((a, b) => a.clone().add(b)).divideScalar(this.points.length);
+        const centerPoint = this.coordinates.reduce((a, b) => a.clone().add(b)).divideScalar(this.coordinates.length);
         this.centroid.fromVector(centerPoint);
     }
 
@@ -224,14 +224,13 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     public isInside(position: T): boolean {
         const point = position.toVector3();
         let inside = false;
-        for (let i = 0, j = this.points.length - 1; i < this.points.length; j = i++) {
-            const xi = this.points[i].x;
-            const yi = this.points[i].y;
-            const zi = this.points[i].z;
-            const xj = this.points[j].x;
-            const yj = this.points[j].y;
-            const zj = this.points[j].z;
-
+        for (let i = 0, j = this.coordinates.length - 1; i < this.coordinates.length; j = i++) {
+            const xi = this.coordinates[i].x;
+            const yi = this.coordinates[i].y;
+            const zi = this.coordinates[i].z;
+            const xj = this.coordinates[j].x;
+            const yj = this.coordinates[j].y;
+            const zj = this.coordinates[j].z;
             const intersect =
                 yi > point.y != yj > point.y &&
                 zi >= point.z != zj > point.z &&
@@ -269,6 +268,27 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      */
     public toPosition(): T {
         return this.centroid as T;
+    }
+
+    /**
+     * Convert the symbolic space to GeoJSON
+     *
+     * @returns {any} GeoJSON
+     */
+    public toGeoJSON(): any {
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'Polygon',
+                coordinates: [this.getBounds().map((p) => this.transform(p).toVector3().toArray())],
+            },
+            properties: {
+                name: this.displayName,
+                uid: this.uid,
+                parent_uid: this.parentUID,
+                priority: this.priority,
+            },
+        };
     }
 }
 

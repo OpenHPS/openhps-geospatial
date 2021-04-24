@@ -13,7 +13,7 @@ import {
 import {
     Building,
     Floor,
-    Hallway,
+    Corridor,
     Room,
     SymbolicSpace,
     SymbolicSpaceService
@@ -50,7 +50,7 @@ const classroom = new Room("3.63")
         new Absolute2DPosition(27.55, 24.105),
         new Absolute2DPosition(35.95, 29.5),
     ]);
-const hallway = new Hallway()
+const hallway = new Corridor()
     .setFloor(floor)
     .setBounds([
         new Absolute2DPosition(2.39, 6.015),
@@ -88,4 +88,5 @@ const hallway = new Hallway()
             done();
         }).catch(done);
     });
+
 });

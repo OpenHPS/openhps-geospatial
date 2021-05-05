@@ -80,6 +80,14 @@ office.getPosition(); // (lat: 50.8204372851, lng: 4.39222609676)
 office.getPosition(floor); // (6.55, 34.135)
 ```
 
+### Symbolic Location
+Symbolic locations represent a physical position (e.g. 2D, 3D or geographical position) within a symbolic space, but are defined
+deliberately as a symbolic position. An example use case would be when you know a person is in a room, but you have no idea where
+in this room/space the person is located.
+
+@openhps/spaces does not provide an additional *SymbolicLocation* for this trivial indicator. Instead, we utilise the ```referenceObjectUID```
+in an ```AbsolutePosition``` to indicate that a certain position is relative to a symbolic space.
+
 ## Contributors
 The framework is open source and is mainly developed by PhD Student Maxim Van de Wynckel as part of his research towards *Hybrid Positioning and Implicit Human-Computer Interaction* under the supervision of Prof. Dr. Beat Signer.
 

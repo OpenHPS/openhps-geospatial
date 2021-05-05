@@ -16,6 +16,7 @@ import {
     Room,
     SymbolicSpace
 } from '../../src';
+import { off } from 'node:process';
 
 describe('position', () => {
     describe('symbolic space', () => {
@@ -149,28 +150,27 @@ describe('position', () => {
                 const bounds = building.getBounds();
                 expect(Math.round(bounds[1].distanceTo(bounds[2]) * 1000) / 1000).to.equal(46.275);
                 expect(Math.round(bounds[0].distanceTo(bounds[1]) * 100) / 100).to.equal(37.27);
-                console.log(bounds.map(b => b.toArray()))
             });
 
             it('building should support local boundaries', () => {
                 const bounds = building.getLocalBounds();
                 expect(bounds.length).to.equal(4);
-                console.log(bounds.map(b => b.toArray()))
             });
             
             it('should support transforming a 2d position to geographical position', () => {
                 const pos = building.transform(new Absolute2DPosition(5, 37));
+              //  console.log(pos)
             });
 
             it('should support transforming a geographical position to 2d', () => {
                 const pos = building.transform(new GeographicalPosition(50.820728049498236, 4.391975920396202));
-
+               // console.log(pos)
             });
 
-            it('should find a floorr', () => {
+            it('should find a floor', () => {
                 const pos = new Absolute2DPosition(20.45354852804289, 39.14921958288905);
                 const inside = floor.isInside(pos);
-                console.log(inside);
+             //   console.log(inside);
             });
 
             it('floor should use local boundaries of a building', () => {
@@ -181,6 +181,20 @@ describe('position', () => {
             it('should convert a position in the office to a geographical position', () => {
                 const object = new DataObject();
                 object.setPosition(office.toPosition(), office);
+            });
+
+            it('should transform an office', () => {
+                const pos = office.transform(office.toPosition()) as GeographicalPosition;
+                expect(pos.latitude).to.equal(50.820437285152764);
+                expect(pos.longitude).to.equal(4.3922260967638485);
+                expect(pos.altitude).to.equal(9);
+                const obj = new DataObject();
+                obj.setPosition(office.toPosition(), office);
+            });
+
+            it('should transform a floor', () => {
+                const pos = office.transform(office.toPosition()) as GeographicalPosition;
+                expect(pos.altitude).to.equal(9);
             });
         });
         

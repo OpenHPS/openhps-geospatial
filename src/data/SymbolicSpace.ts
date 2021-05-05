@@ -202,6 +202,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     private _update(): void {
         this.centroid = new this.positionConstructor();
+        this.centroid.referenceSpaceUID = this.uid;
         const centerPoint = this.coordinates.reduce((a, b) => a.clone().add(b)).divideScalar(this.coordinates.length);
         this.centroid.fromVector(centerPoint);
     }

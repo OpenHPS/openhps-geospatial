@@ -1,4 +1,4 @@
-import { Absolute2DPosition, SerializableObject } from '@openhps/core';
+import { Absolute2DPosition, SerializableMember, SerializableObject } from '@openhps/core';
 import { Building } from './Building';
 import { SymbolicSpace } from './SymbolicSpace';
 
@@ -7,6 +7,9 @@ import { SymbolicSpace } from './SymbolicSpace';
  */
 @SerializableObject()
 export class Floor extends SymbolicSpace<Absolute2DPosition> {
+    @SerializableMember()
+    public height: number;
+
     public setBuilding(building: Building): this {
         this.parent = building;
         this.setBounds(building.getLocalBounds());
@@ -23,6 +26,11 @@ export class Floor extends SymbolicSpace<Absolute2DPosition> {
      */
     public setFloorNumber(floor: number, floorHeight = 3): this {
         this.translation(0, 0, floor * floorHeight);
+        return this;
+    }
+
+    public setHeight(height: number): this {
+        this.height = height;
         return this;
     }
 }

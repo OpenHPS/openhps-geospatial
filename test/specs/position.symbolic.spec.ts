@@ -16,7 +16,6 @@ import {
     Room,
     SymbolicSpace
 } from '../../src';
-import { off } from 'node:process';
 
 describe('position', () => {
     describe('symbolic space', () => {

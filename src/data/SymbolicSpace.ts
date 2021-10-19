@@ -10,7 +10,6 @@ import {
     LengthUnit,
     SerializableMember,
     DataSerializer,
-    AbsolutePositionDeserializer,
 } from '@openhps/core';
 
 /**
@@ -99,26 +98,24 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         },
     })
     protected positionConstructor: new () => T;
-    @SerializableMember({
-        deserializer: AbsolutePositionDeserializer,
-    })
-    public centroid: AbsolutePosition;
+    @SerializableMember()
+    centroid: AbsolutePosition;
     @SerializableMapMember(Vector3, String)
     protected connectedSpaces: Map<Vector3, string> = new Map();
     @SerializableMember({
         constructor: Number,
     })
-    public priority = 0;
+    priority = 0;
 
     constructor(displayName?: string) {
         super();
         this.displayName = displayName;
     }
 
-    public setBounds(bounds: T[]): this;
-    public setBounds(bounds: RectangleCornerBoundary<T>): this;
-    public setBounds(bounds: RectangleRotationBoundary<T>): this;
-    public setBounds(bounds: any): this {
+    setBounds(bounds: T[]): this;
+    setBounds(bounds: RectangleCornerBoundary<T>): this;
+    setBounds(bounds: RectangleRotationBoundary<T>): this;
+    setBounds(bounds: any): this {
         if (Array.isArray(bounds)) {
             // Array bounds
             this._setArrayBounds(bounds);
@@ -192,7 +189,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      *
      * @returns {AbsolutePosition[]} Array of boundary position
      */
-    public getBounds(): T[] {
+    getBounds(): T[] {
         return this.coordinates.map((point) => {
             const position = new this.positionConstructor();
             position.fromVector(point, LengthUnit.METER);
@@ -212,7 +209,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      *
      * @param {SymbolicSpace} loc Parent symbolic location
      */
-    public set parent(loc: SymbolicSpace<any>) {
+    set parent(loc: SymbolicSpace<any>) {
         super.parent = loc;
     }
 
@@ -222,7 +219,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @param {AbsolutePosition} position Absolute position to check
      * @returns {boolean} Point inside boundaries
      */
-    public isInside(position: T): boolean {
+    isInside(position: T): boolean {
         const point = position.toVector3();
         let inside = false;
         for (let i = 0, j = this.coordinates.length - 1; i < this.coordinates.length; j = i++) {
@@ -247,7 +244,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @param {SymbolicSpace} space Space to check if connected
      * @returns {boolean} connected or not
      */
-    public isConnected(space: SymbolicSpace<any>): boolean {
+    isConnected(space: SymbolicSpace<any>): boolean {
         return Array.from(this.connectedSpaces.values()).includes(space.uid);
     }
 
@@ -257,7 +254,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @param {SymbolicSpace} space Connected space
      * @param {AbsolutePosition} [position] Position of connection
      */
-    public addConnectedSpace(space: SymbolicSpace<any>, position?: T): this {
+    addConnectedSpace(space: SymbolicSpace<any>, position?: T): this {
         this.connectedSpaces.set(position.toVector3(), space.uid);
         return this;
     }
@@ -267,7 +264,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      *
      * @returns {AbsolutePosition} Absolute position
      */
-    public toPosition(): T {
+    toPosition(): T {
         return this.centroid as T;
     }
 
@@ -276,7 +273,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      *
      * @returns {any} GeoJSON
      */
-    public toGeoJSON(): any {
+    toGeoJSON(): any {
         return {
             type: 'Feature',
             geometry: {

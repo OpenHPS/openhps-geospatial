@@ -88,7 +88,7 @@ import {
 @SerializableObject()
 export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     @SerializableArrayMember(Vector3)
-    protected coordinates: Vector3[] = [];
+    coordinates: Vector3[] = [];
     @SerializableMember({
         serializer: (constructor) => {
             return constructor.name;

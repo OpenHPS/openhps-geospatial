@@ -1,32 +1,32 @@
 <h1 align="center">
   <img alt="OpenHPS" src="https://openhps.org/images/logo_text-512.png" width="40%" /><br />
-  @openhps/spaces
+  @openhps/geospatial
 </h1>
 <p align="center">
-    <a href="https://github.com/OpenHPS/openhps-spaces/actions/workflows/main.yml" target="_blank">
-        <img alt="Build Status" src="https://github.com/OpenHPS/openhps-spaces/actions/workflows/main.yml/badge.svg">
+    <a href="https://github.com/OpenHPS/openhps-geospatial/actions/workflows/main.yml" target="_blank">
+        <img alt="Build Status" src="https://github.com/OpenHPS/openhps-geospatial/actions/workflows/main.yml/badge.svg">
     </a>
-    <a href="https://codecov.io/gh/OpenHPS/openhps-spaces">
-        <img src="https://codecov.io/gh/OpenHPS/openhps-spaces/branch/master/graph/badge.svg"/>
+    <a href="https://codecov.io/gh/OpenHPS/openhps-geospatial">
+        <img src="https://codecov.io/gh/OpenHPS/openhps-geospatial/branch/master/graph/badge.svg"/>
     </a>
-    <a href="https://codeclimate.com/github/OpenHPS/openhps-spaces/" target="_blank">
-        <img alt="Maintainability" src="https://img.shields.io/codeclimate/maintainability/OpenHPS/openhps-spaces">
+    <a href="https://codeclimate.com/github/OpenHPS/openhps-geospatial/" target="_blank">
+        <img alt="Maintainability" src="https://img.shields.io/codeclimate/maintainability/OpenHPS/openhps-geospatial">
     </a>
-    <a href="https://badge.fury.io/js/@openhps%spaces">
-        <img src="https://badge.fury.io/js/@openhps%2Fspaces.svg" alt="npm version" height="18">
+    <a href="https://badge.fury.io/js/@openhps%geospatial">
+        <img src="https://badge.fury.io/js/@openhps%2Fgeospatial.svg" alt="npm version" height="18">
     </a>
 </p>
 
 <h3 align="center">
-    <a href="https://github.com/OpenHPS/openhps-core">@openhps/core</a> &mdash; <a href="https://openhps.org/docs/spaces">API</a>
+    <a href="https://github.com/OpenHPS/openhps-core">@openhps/core</a> &mdash; <a href="https://openhps.org/docs/geospatial">API</a>
 </h3>
 
 <br />
 
 ## Getting Started
-If you have [npm installed](https://www.npmjs.com/get-npm), start using @openhps/spaces with the following command.
+If you have [npm installed](https://www.npmjs.com/get-npm), start using @openhps/geospatial with the following command.
 ```bash
-npm install @openhps/spaces --save
+npm install @openhps/geospatial --save
 ```
 ## Usage
 
@@ -87,6 +87,14 @@ in this room/space the person is located.
 
 @openhps/spaces does not provide an additional *SymbolicLocation* for this trivial indicator. Instead, we utilise the ```referenceObjectUID```
 in an ```AbsolutePosition``` to indicate that a certain position is relative to a symbolic space.
+
+### Geospatial Accuracy
+Geospatial accuracy is the accuracy set to a geospatial place.
+
+```typescript
+// Set the accuracy of the position to the floor
+position.accuracy = new GeospatialAccuracy(floor);
+```
 
 ## Contributors
 The framework is open source and is mainly developed by PhD Student Maxim Van de Wynckel as part of his research towards *Hybrid Positioning and Implicit Human-Computer Interaction* under the supervision of Prof. Dr. Beat Signer.

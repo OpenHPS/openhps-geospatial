@@ -16,7 +16,7 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
      * @param {AbsolutePosition} position Position to reverse geocode
      * @returns {Promise<Array<[SymbolicSpace, number]>>} A promise of an array of symbolic spaces and their probability
      */
-    public findSymbolicSpaces(position: AbsolutePosition): Promise<Array<[SymbolicSpace<any>, number]>> {
+    findSymbolicSpaces(position: AbsolutePosition): Promise<Array<[SymbolicSpace<any>, number]>> {
         return new Promise((resolve, reject) => {
             this.findAll()
                 .then((results) => {

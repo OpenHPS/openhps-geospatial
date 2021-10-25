@@ -1,12 +1,12 @@
 {
-  "name": "@openhps/spaces",
+  "name": "@openhps/geospatial",
   "version": "0.1.1",
   "description": "Open Hybrid Positioning System",
   "author": "Maxim Van de Wynckel",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenHPS/openhps-spaces.git"
+    "url": "https://github.com/OpenHPS/openhps-geospatial.git"
   },
   "publishConfig": {
     "access": "public"
@@ -18,8 +18,8 @@
     "require": "./dist/cjs/index.js",
     "import": "./dist/esm/index.js"
   },
-  "unpkg": "dist/web/openhps-spaces.min.js",
-  "jsdelivr": "dist/web/openhps-spaces.min.js",
+  "unpkg": "dist/web/openhps-geospatial.min.js",
+  "jsdelivr": "dist/web/openhps-geospatial.min.js",
   "files": [
     "dist/**/*",
     "src/**/*"
@@ -36,20 +36,18 @@
     "build:webpack:prod": "webpack --env prod --",
     "build:webpack:dev": "webpack --env dev --",
     "build:typedoc": "typedoc --options docs/typedoc.json",
-    "publish:development": "npm run bump:beta && npm publish --tag dev",
-    "publish:beta": "npm run bump:beta && npm publish --tag beta",
-    "publish:release": "npm run bump:beta && npm publish --tag latest",
     "bump:development": "standard-version --prerelease alpha -m 'chore(alpha): %s' --skip.changelog",
     "bump:beta": "standard-version --prerelease beta -m 'chore(beta): %s' --skip.changelog",
     "bump:release": "standard-version -m 'chore(release): %s' --skip.changelog"
   },
   "keywords": [
     "openhps",
-    "symbolic location"
+    "symbolic location",
+    "geospatial data"
   ],
   "dependencies": {},
   "peerDependencies": {
-    "@openhps/core": ">=0.3.1",
+    "@openhps/core": ">=0.3.2",
     "reflect-metadata": ">=0.1.13"
   },
   "devDependencies": {
@@ -58,7 +56,7 @@
     "@babel/preset-env": "^7.15.8",
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
-    "@openhps/core": ">=0.3.1",
+    "@openhps/core": ">=0.3.2-alpha.3",
     "@purtuga/esm-webpack-plugin": "^1.5.0",
     "@types/chai": "^4.2.22",
     "@types/mocha": "^9.0.0",

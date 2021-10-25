@@ -6,3 +6,4 @@ export * from './Corridor';
 export * from './Zone';
 export * from './VerticalPassage';
 export * from './Elevator';
+export * from './GeospatialAccuracy';

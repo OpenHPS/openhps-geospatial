@@ -8,9 +8,9 @@ import { SymbolicSpace } from './SymbolicSpace';
 @SerializableObject()
 export class Floor extends SymbolicSpace<Absolute2DPosition> {
     @SerializableMember()
-    public height: number;
+    height: number;
 
-    public setBuilding(building: Building): this {
+    setBuilding(building: Building): this {
         this.parent = building;
         this.setBounds(building.getLocalBounds());
         this.priority = building.priority + 1;
@@ -24,12 +24,12 @@ export class Floor extends SymbolicSpace<Absolute2DPosition> {
      * @param {number} [floorHeight=3] Floor height (meters)
      * @returns {Floor} Floor instance
      */
-    public setFloorNumber(floor: number, floorHeight = 3): this {
+    setFloorNumber(floor: number, floorHeight = 3): this {
         this.translation(0, 0, floor * floorHeight);
         return this;
     }
 
-    public setHeight(height: number): this {
+    setHeight(height: number): this {
         this.height = height;
         return this;
     }

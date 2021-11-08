@@ -91,6 +91,9 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     coordinates: Vector3[] = [];
     @SerializableMember({
         serializer: (constructor) => {
+            if (!constructor) {
+                return AbsolutePosition.name;
+            }
             return constructor.name;
         },
         deserializer: (constructorName) => {

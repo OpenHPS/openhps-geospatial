@@ -10,10 +10,12 @@ import {
     LengthUnit,
     SerializableMember,
     DataSerializer,
+    GeographicalPosition,
 } from '@openhps/core';
+const wkt = require('wkt');
 
 /**
- * A symbolic space can be used to indicate a building or room.
+ * A symbolic space can be used to indicate an abstract space with a boundary.
  * It is an extended ```ReferenceSpace``` with boundaries.
  *
  * ## About
@@ -256,6 +258,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      *
      * @param {SymbolicSpace} space Connected space
      * @param {AbsolutePosition} [position] Position of connection
+     * @returns {SymbolicSpace} instance
      */
     addConnectedSpace(space: SymbolicSpace<any>, position?: T): this {
         this.connectedSpaces.set(position.toVector3(), space.uid);
@@ -269,6 +272,23 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      */
     toPosition(): T {
         return this.centroid as T;
+    }
+
+    static fromGeoJSON<T extends typeof SymbolicSpace>(json: any): InstanceType<T> {
+        const dataType = DataSerializer.findTypeByName(json.properties.type);
+        const instance = new dataType() as InstanceType<T>;
+        instance.uid = json.properties.uid;
+        instance.parentUID = json.properties.parent_uid;
+        instance.priority = json.properties.priority;
+        instance.displayName = json.properties.name;
+        instance.setBounds(
+            json.geometry.coordinates[0].map((pos: number[]) => new GeographicalPosition(pos[0], pos[1], pos[2])),
+        );
+        return instance;
+    }
+
+    static fromWKT<T extends typeof SymbolicSpace>(wktLiteral: string): InstanceType<T> {
+        return this.fromGeoJSON(wkt.parse(wktLiteral));
     }
 
     /**
@@ -291,6 +311,15 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 type: this.constructor.name,
             },
         };
+    }
+
+    /**
+     * Convert the symbolic space to well-known text representation
+     *
+     * @returns {string} WKT
+     */
+    toWKT(): string {
+        return wkt.stringify(this.toGeoJSON());
     }
 }
 

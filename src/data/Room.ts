@@ -1,8 +1,8 @@
 import { SerializableObject } from '@openhps/core';
-import { Zone } from './Zone';
+import { CellSpace } from './gml/CellSpace';
 
 /**
  * A room represents a symbolic space inside a floor.
  */
 @SerializableObject()
-export class Room extends Zone {}
+export class Room extends CellSpace {}

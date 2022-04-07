@@ -8,8 +8,20 @@ import { SymbolicSpace } from './SymbolicSpace';
 @SerializableObject()
 export class Floor extends SymbolicSpace<Absolute2DPosition> {
     @SerializableMember()
-    height: number;
+    groundHeight: number;
+    @SerializableMember()
+    doorHeight: number;
+    @SerializableMember()
+    floorLevel: number;
+    @SerializableMember()
+    ceilingHeight: number;
 
+    /**
+     * Set the building this floor belongs to
+     *
+     * @param {Building} building Building
+     * @returns {Floor} instance
+     */
     setBuilding(building: Building): this {
         this.parent = building;
         this.setBounds(building.getLocalBounds());
@@ -21,16 +33,57 @@ export class Floor extends SymbolicSpace<Absolute2DPosition> {
      * Set the floor number
      *
      * @param {number} floor Floor number
-     * @param {number} [floorHeight=3] Floor height (meters)
+     * @param {number} [floorHeight=3] Ceiling floor height (meters)
      * @returns {Floor} Floor instance
      */
     setFloorNumber(floor: number, floorHeight = 3): this {
         this.translation(0, 0, floor * floorHeight);
+        this.floorLevel = floor;
+        this.setCeilingHeight(floorHeight);
         return this;
     }
 
+    /**
+     * Set the height of the floor
+     *
+     * @deprecated Use setGroundHeight
+     * @param {number} height Height of the floor
+     * @returns {Floor} Floor instance
+     */
     setHeight(height: number): this {
-        this.height = height;
+        return this.setGroundHeight(height);
+    }
+
+    /**
+     * Set the ground height of the floor
+     *
+     * @param {number} height Height of the floor
+     * @returns {Floor} Floor instance
+     */
+    setGroundHeight(height: number): this {
+        this.groundHeight = height;
+        return this;
+    }
+
+    /**
+     * Set the ceiling height of the floor
+     *
+     * @param {number} height Ceiling height of the floor
+     * @returns {Floor} Floor instance
+     */
+    setCeilingHeight(height: number): this {
+        this.ceilingHeight = height;
+        return this;
+    }
+
+    /**
+     * Set the door height of the floor
+     *
+     * @param {number} height Height of the floor
+     * @returns {Floor} Floor instance
+     */
+    setDoorHeight(height: number): this {
+        this.doorHeight = height;
         return this;
     }
 }

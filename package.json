@@ -45,7 +45,9 @@
     "symbolic location",
     "geospatial data"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "wkt": "^0.1.1"
+  },
   "peerDependencies": {
     "@openhps/core": ">=0.3.2",
     "reflect-metadata": ">=0.1.13"

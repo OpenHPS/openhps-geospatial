@@ -16,25 +16,34 @@ import {
 } from '../../src';
 
 describe('SymbolicSpace', () => {
+    const building = new Building("Pleinlaan 9")
+        .setBounds({
+            topLeft: new GeographicalPosition(
+                50.8203726927966, 4.392241309019189
+            ),
+            width: 46.275,
+            height: 37.27,
+            rotation: -34.04
+        });
+    const floor = new Floor("3")
+        .setBuilding(building)
+        .setFloorNumber(3);
+    const office = new Room("3.58")
+        .setFloor(floor)
+        .setBounds([
+            new Absolute2DPosition(4.75, 31.25),
+            new Absolute2DPosition(8.35, 37.02),
+        ]);
+        
+    describe('wkt', () => {
+
+        it('should be convertable to well-known text', () => {
+            expect(office.toWKT()).to.equal("POLYGON Z ((4.3922064088170245 50.820409347596424 9, 4.392274471790824 50.82043839481918 9, 4.392245784743152 50.820465222697464 9, 4.392177721730248 50.82043617547472 9))");
+        });
+
+    });
+
     describe('geojson', () => {
-        const building = new Building("Pleinlaan 9")
-            .setBounds({
-                topLeft: new GeographicalPosition(
-                    50.8203726927966, 4.392241309019189
-                ),
-                width: 46.275,
-                height: 37.27,
-                rotation: -34.04
-            });
-        const floor = new Floor("3")
-            .setBuilding(building)
-            .setFloorNumber(3);
-        const office = new Room("3.58")
-            .setFloor(floor)
-            .setBounds([
-                new Absolute2DPosition(4.75, 31.25),
-                new Absolute2DPosition(8.35, 37.02),
-            ]);
         
         it('should be convertable to geojson', () => {
             office.toGeoJSON()
@@ -194,4 +203,32 @@ describe('SymbolicSpace', () => {
         });
     });
     
+    describe('geojson', () => {
+        const building = new Building("Pleinlaan 9")
+            .setBounds({
+                topLeft: new GeographicalPosition(
+                    50.8203726927966, 4.392241309019189
+                ),
+                width: 46.275,
+                height: 37.27,
+                rotation: -34.04
+            });
+        const floor = new Floor("3")
+            .setBuilding(building)
+            .setFloorNumber(3);
+        const office = new Room("3.58")
+            .setFloor(floor)
+            .setBounds([
+                new Absolute2DPosition(4.75, 31.25),
+                new Absolute2DPosition(8.35, 37.02),
+            ]);
+
+        it('should serialize a building to geojson', () => {
+            const serialized = building.toGeoJSON();
+            console.log(building.toPosition())
+            const deserialized = Building.fromGeoJSON(serialized);
+            console.log(deserialized.toPosition())
+        });
+
+    });
 });

@@ -4,6 +4,7 @@ import {
     Absolute2DPosition, 
     Absolute3DPosition, 
     DataObject, 
+    DataSerializer, 
     GeographicalPosition, 
     Vector3
 } from '@openhps/core';
@@ -200,6 +201,10 @@ describe('SymbolicSpace', () => {
         it('should transform a floor', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
             expect(pos.altitude).to.equal(9);
+        });
+
+        it('should be serializable to JSON', () => {
+            DataSerializer.serialize(hallway);
         });
     });
     

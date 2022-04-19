@@ -11,6 +11,7 @@ import {
     SerializableMember,
     DataSerializer,
     GeographicalPosition,
+    Constructor,
 } from '@openhps/core';
 const wkt = require('wkt');
 
@@ -275,7 +276,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     }
 
     static fromGeoJSON<T extends typeof SymbolicSpace>(json: any): InstanceType<T> {
-        const dataType = DataSerializer.findTypeByName(json.properties.type);
+        const dataType = DataSerializer.findTypeByName(json.properties.type) as Constructor<T>;
         const instance = new dataType() as InstanceType<T>;
         instance.uid = json.properties.uid;
         instance.parentUID = json.properties.parent_uid;

@@ -152,6 +152,10 @@ describe('SymbolicSpace', () => {
                 new Absolute2DPosition(41.94, 6.015),
             ]);
 
+        it('should get the accuracy of the centroid', () => {
+            expect(building.toPosition().accuracy.value).to.equal(29.70859603054209);
+        });
+
         it('building should support rectangular boundaries', () => {
             const bounds = building.getBounds();
             expect(Math.round(bounds[1].distanceTo(bounds[2]) * 1000) / 1000).to.equal(46.275);
@@ -230,10 +234,7 @@ describe('SymbolicSpace', () => {
 
         it('should serialize a building to geojson', () => {
             const serialized = building.toGeoJSON();
-            console.log(building.toPosition())
             const deserialized = Building.fromGeoJSON(serialized);
-            console.log(deserialized.toPosition())
         });
-
     });
 });

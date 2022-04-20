@@ -12,6 +12,7 @@ import {
     DataSerializer,
     GeographicalPosition,
     Constructor,
+    Accuracy1D,
 } from '@openhps/core';
 const wkt = require('wkt');
 
@@ -272,7 +273,11 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {AbsolutePosition} Absolute position
      */
     toPosition(): T {
-        return this.centroid as T;
+        const centroid = this.centroid as T;
+        const centroidVector = centroid.toVector3();
+        const maxDistance = this.coordinates.map((coord) => centroidVector.distanceTo(coord)).sort((a, b) => a - b)[0];
+        centroid.accuracy = new Accuracy1D(maxDistance, LengthUnit.METER);
+        return centroid;
     }
 
     static fromGeoJSON<T extends typeof SymbolicSpace>(json: any): InstanceType<T> {

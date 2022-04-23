@@ -15,6 +15,7 @@ import {
     Room,
     SymbolicSpace
 } from '../../src';
+import { off } from 'process';
 
 describe('SymbolicSpace', () => {
     const building = new Building("Pleinlaan 9")
@@ -39,7 +40,7 @@ describe('SymbolicSpace', () => {
     describe('wkt', () => {
 
         it('should be convertable to well-known text', () => {
-            expect(office.toWKT()).to.equal("POLYGON Z ((4.3922064088170245 50.820409347596424 9, 4.392274471790824 50.82043839481918 9, 4.392245784743152 50.820465222697464 9, 4.392177721730248 50.82043617547472 9))");
+            expect(office.toWKT()).to.equal("POLYGON Z ((4.392206408821251 50.82040934759197 8.999999999068677, 4.39227447178681 50.8204383948112 8.999999999068677, 4.392245784742611 50.82046522268625 8.999999999068677, 4.392177721737949 50.820436175467016 8.999999999068677))");
         });
 
     });
@@ -108,7 +109,7 @@ describe('SymbolicSpace', () => {
         const building = new Building("Pleinlaan 9")
             .setBounds({
                 topLeft: new GeographicalPosition(
-                    50.8203726927966, 4.392241309019189
+                    50.8203726927966, 4.392241309019189, 5
                 ),
                 width: 46.275,
                 height: 37.27,
@@ -153,7 +154,7 @@ describe('SymbolicSpace', () => {
             ]);
 
         it('should get the accuracy of the centroid', () => {
-            expect(building.toPosition().accuracy.value).to.equal(29.70859603054209);
+            expect(building.toPosition().accuracy.value).to.equal(29.72247679499634);
         });
 
         it('building should support rectangular boundaries', () => {
@@ -168,8 +169,9 @@ describe('SymbolicSpace', () => {
         });
 
         it('should support transforming a 2d position to geographical position', () => {
-            const pos = building.transform(new Absolute2DPosition(5, 37));
-            //  console.log(pos)
+            const pos: GeographicalPosition = building.transform(new Absolute2DPosition(5, 37));
+            expect(Math.round(pos.altitude)).to.equal(5);
+            console.log(pos)
         });
 
         it('should support transforming a geographical position to 2d', () => {
@@ -190,21 +192,24 @@ describe('SymbolicSpace', () => {
 
         it('should convert a position in the office to a geographical position', () => {
             const object = new DataObject();
-            object.setPosition(office.toPosition(), office);
+            const position = office.toPosition();
+            object.setPosition(position, office);
+            const transformed = office.transform(position);
+            expect(transformed.toVector3()).to.eql(object.getPosition().toVector3());
         });
 
         it('should transform an office', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
-            expect(pos.latitude).to.equal(50.820437285152764);
-            expect(pos.longitude).to.equal(4.3922260967638485);
-            expect(pos.altitude).to.equal(9);
+            expect(pos.latitude).to.equal(50.82043728514493);
+            expect(pos.longitude).to.equal(4.3922260967656905);
+            expect(Math.round(pos.altitude)).to.equal(9 + 5);
             const obj = new DataObject();
             obj.setPosition(office.toPosition(), office);
         });
 
         it('should transform a floor', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
-            expect(pos.altitude).to.equal(9);
+            expect(Math.round(pos.altitude)).to.equal(9 + 5);
         });
 
         it('should be serializable to JSON', () => {

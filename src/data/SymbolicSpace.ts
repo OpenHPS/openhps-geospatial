@@ -300,7 +300,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         instance.priority = json.properties.priority;
         instance.displayName = json.properties.name;
         instance.setBounds(
-            json.geometry.coordinates[0].map((pos: number[]) => new GeographicalPosition(pos[0], pos[1], pos[2])),
+            json.geometry.coordinates[0].map((pos: number[]) => new GeographicalPosition(pos[1], pos[0], pos[2])),
         );
         return instance;
     }

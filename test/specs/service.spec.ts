@@ -84,9 +84,17 @@ const hallway = new Corridor()
 
     it('should find the best space', (done) => {
         service.findSymbolicSpaces(lab.toPosition()).then(results => {
+            expect(results.length).to.be.greaterThan(0);
             expect(results[0][0].uid).to.equal(lab.uid);
             done();
         }).catch(done);
     });
 
+    it('should find the best space when a geographical position is provided', (done) => {
+        const position = lab.transform(lab.toPosition());
+        service.findSymbolicSpaces(position).then(results => {
+            expect(results[0][0].uid).to.equal(lab.uid);
+            done();
+        }).catch(done);
+    });
 });

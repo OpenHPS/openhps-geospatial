@@ -20,9 +20,15 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
         return new Promise((resolve, reject) => {
             this.findAll()
                 .then((results) => {
-                    // TODO: In memory, use geospatial queries instead
                     resolve(
                         results
+                            .map((res) => {
+                                if (res.parentUID) {
+                                    const parent = results.filter((r) => r.uid === res.parentUID);
+                                    res.parent = parent.length > 0 ? parent[0] : undefined;
+                                }
+                                return res;
+                            })
                             .filter((res) => res.isInside(position))
                             .sort((a, b) => b.priority - a.priority)
                             .map((res) => [res, res.priority]),

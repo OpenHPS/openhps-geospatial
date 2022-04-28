@@ -227,15 +227,21 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {boolean} Point inside boundaries
      */
     isInside(position: T): boolean {
-        const point = position.toVector3();
+        const point = position.toVector3(LengthUnit.METER);
         let inside = false;
-        for (let i = 0, j = this.coordinates.length - 1; i < this.coordinates.length; j = i++) {
-            const xi = this.coordinates[i].x;
-            const yi = this.coordinates[i].y;
-            const zi = this.coordinates[i].z;
-            const xj = this.coordinates[j].x;
-            const yj = this.coordinates[j].y;
-            const zj = this.coordinates[j].z;
+        const coordinates: Vector3[] =
+            position instanceof GeographicalPosition
+                ? this.getBounds()
+                      .map((pos) => this.transform(pos))
+                      .map((pos) => pos.toVector3(LengthUnit.METER))
+                : this.coordinates;
+        for (let i = 0, j = coordinates.length - 1; i < coordinates.length; j = i++) {
+            const xi = coordinates[i].x;
+            const yi = coordinates[i].y;
+            const zi = coordinates[i].z;
+            const xj = coordinates[j].x;
+            const yj = coordinates[j].y;
+            const zj = coordinates[j].z;
             const intersect =
                 yi > point.y != yj > point.y &&
                 zi >= point.z != zj > point.z &&
@@ -280,6 +286,12 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         return centroid;
     }
 
+    /**
+     * Create a new symbolic space GeoJSON
+     *
+     * @param {any} json GeoJSON
+     * @returns {SymbolicSpace} symbolic space instance
+     */
     static fromGeoJSON<T extends typeof SymbolicSpace>(json: any): InstanceType<T> {
         const dataType = DataSerializer.findTypeByName(json.properties.type) as Constructor<T>;
         const instance = new dataType() as InstanceType<T>;
@@ -307,7 +319,11 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             type: 'Feature',
             geometry: {
                 type: 'Polygon',
-                coordinates: [this.getBounds().map((p) => this.transform(p).toVector3().toArray())],
+                coordinates: [
+                    this.getBounds()
+                        .map((pos) => this.transform(pos))
+                        .map((p) => p.toVector3().toArray()),
+                ],
             },
             properties: {
                 name: this.displayName,

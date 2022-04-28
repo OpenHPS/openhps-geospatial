@@ -208,7 +208,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         this.centroid = new this.positionConstructor();
         this.centroid.referenceSpaceUID = this.uid;
         const centerPoint = this.coordinates.reduce((a, b) => a.clone().add(b)).divideScalar(this.coordinates.length);
-        this.centroid.fromVector(centerPoint);
+        this.centroid.fromVector(centerPoint, LengthUnit.METER);
     }
 
     /**
@@ -227,10 +227,11 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {boolean} Point inside boundaries
      */
     isInside(position: T): boolean {
-        const point = position.toVector3(LengthUnit.METER);
+        const transformedPosition = position instanceof this.positionConstructor ? position : this.transform(position);
+        const point = transformedPosition.toVector3(LengthUnit.METER);
         let inside = false;
         const coordinates: Vector3[] =
-            position instanceof GeographicalPosition
+            position instanceof GeographicalPosition && this.positionConstructor.name !== GeographicalPosition.name
                 ? this.getBounds()
                       .map((pos) => this.transform(pos))
                       .map((pos) => pos.toVector3(LengthUnit.METER))
@@ -280,7 +281,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      */
     toPosition(): T {
         const centroid = this.centroid as T;
-        const centroidVector = centroid.toVector3();
+        const centroidVector = centroid.toVector3(LengthUnit.METER);
         const maxDistance = this.coordinates.map((coord) => centroidVector.distanceTo(coord)).sort((a, b) => a - b)[0];
         centroid.accuracy = new Accuracy1D(maxDistance, LengthUnit.METER);
         return centroid;

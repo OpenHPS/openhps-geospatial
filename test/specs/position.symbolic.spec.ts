@@ -154,7 +154,7 @@ describe('SymbolicSpace', () => {
             ]);
 
         it('should get the accuracy of the centroid', () => {
-            expect(building.toPosition().accuracy.value).to.equal(29.72247679499634);
+            expect(building.toPosition().accuracy.value).to.equal(29.722476796755185);
         });
 
         it('building should support rectangular boundaries', () => {
@@ -240,6 +240,12 @@ describe('SymbolicSpace', () => {
         it('should serialize a building to geojson', () => {
             const serialized = building.toGeoJSON();
             const deserialized = Building.fromGeoJSON(serialized);
+            const office2 = SymbolicSpace.fromGeoJSON(office.toGeoJSON());
+            office2.parent = floor;
+            expect(office2.isInside(office2.toPosition())).to.be.true;
+            expect(office2.isInside(office.transform(office.toPosition()))).to.be.true;
+            expect(office2.isInside(office2.transform(office.toPosition()))).to.be.true;
+            expect(office2.isInside(office.toPosition())).to.be.true;
         });
     });
 });

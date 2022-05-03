@@ -26,7 +26,7 @@ describe('SymbolicSpaceService', () => {
             50.8203726927966, 4.392241309019189
         ),
         width: 46.275,
-        height: 37.27,
+        length: 37.27,
         rotation: -34.04
     });
 const floor = new Floor("3")

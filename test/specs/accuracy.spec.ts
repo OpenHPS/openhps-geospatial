@@ -11,7 +11,7 @@ describe('GeospatialAccuracy', () => {
                     50.8203726927966, 4.392241309019189
                 ),
                 width: 46.275,
-                height: 37.27,
+                length: 37.27,
                 rotation: -34.04
             });
         const floor = new Floor("3")
@@ -29,14 +29,14 @@ describe('GeospatialAccuracy', () => {
 
     it('should output de space name on toString()', () => {
         const building = new Building("Pleinlaan 9")
-        .setBounds({
-            topLeft: new GeographicalPosition(
-                50.8203726927966, 4.392241309019189
-            ),
-            width: 46.275,
-            height: 37.27,
-            rotation: -34.04
-        });
+            .setBounds({
+                topLeft: new GeographicalPosition(
+                    50.8203726927966, 4.392241309019189
+                ),
+                width: 46.275,
+                length: 37.27,
+                rotation: -34.04
+            });
         const accuracy = new GeospatialAccuracy(building);
         expect(accuracy.toString()).to.eql(building.displayName);
     });

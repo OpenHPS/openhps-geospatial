@@ -3,7 +3,6 @@ import {
     AngleUnit,
     GeographicalPosition,
     SerializableObject,
-    Euler,
     Vector2,
     AbsolutePosition,
     SpaceTransformationOptions,
@@ -17,22 +16,6 @@ import { SymbolicSpace } from './SymbolicSpace';
  */
 @SerializableObject()
 export class Building extends SymbolicSpace<GeographicalPosition> {
-    setBounds(bounds: any): this {
-        if (Array.isArray(bounds)) {
-            super.setBounds(bounds);
-        } else if ('width' in bounds) {
-            const eulerRotation = new Euler(0, 0, bounds.rotation, 'XYZ', AngleUnit.DEGREE);
-            this.rotation(eulerRotation);
-            const topRight = bounds.topLeft.destination(bounds.rotation, bounds.width);
-            const bottomRight = topRight.destination(bounds.rotation + 90, bounds.height);
-            const bottomLeft = bounds.topLeft.destination(bounds.rotation + 90, bounds.height);
-            super.setBounds([bottomLeft, bounds.topLeft, topRight, bottomRight]);
-        } else {
-            super.setBounds(bounds);
-        }
-        return this;
-    }
-
     getLocalBounds(): Absolute2DPosition[] {
         const localBounds = [new Absolute2DPosition(0, 0)];
         for (let i = 1; i < this.getBounds().length; i++) {

@@ -130,7 +130,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             // Rectangle boundary
             this._setRectangleBounds(bounds);
         }
-        this._update();
+        this.updateCentroid();
         return this;
     }
 
@@ -138,20 +138,43 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     private _setRectangleBounds(bounds: RectangleCornerBoundary<T>): void;
     private _setRectangleBounds(bounds: any): void {
         if ('width' in bounds) {
+            const topLeft: T = bounds.topLeft;
+
             const eulerRotation = new Euler(0, 0, bounds.rotation, 'XYZ', AngleUnit.DEGREE);
             this.rotation(eulerRotation);
-            const topRight = bounds.topLeft.toVector3(LengthUnit.METER);
-            topRight.add(new Vector3(bounds.width, 0, 0).applyEuler(eulerRotation));
-            const bottomLeft = bounds.topLeft.toVector3(LengthUnit.METER);
-            bottomLeft.add(new Vector3(0, bounds.height, 0).applyEuler(eulerRotation));
-            const bottomRight = bounds.topLeft.toVector3(LengthUnit.METER);
-            bottomRight.add(new Vector3(bounds.width, bounds.height, 0).applyEuler(eulerRotation));
-            this._setArrayBounds([
-                bounds.topLeft.clone().fromVector(bottomLeft, LengthUnit.METER),
-                bounds.topLeft,
-                bounds.topLeft.clone().fromVector(topRight, LengthUnit.METER),
-                bounds.topLeft.clone().fromVector(bottomRight, LengthUnit.METER),
-            ]);
+
+            const boundsArray: AbsolutePosition[] = [];
+            if (topLeft instanceof GeographicalPosition) {
+                const topRight: GeographicalPosition = topLeft.destination(bounds.rotation, bounds.width);
+                const bottomLeft: GeographicalPosition = topLeft.destination(bounds.rotation + 90, bounds.length);
+                const bottomRight: GeographicalPosition = topRight.destination(bounds.rotation + 90, bounds.length);
+                boundsArray.push(bottomLeft);
+                boundsArray.push(topLeft);
+                boundsArray.push(topRight);
+                boundsArray.push(bottomRight);
+                if (bounds.height) {
+                    boundsArray.forEach((bound) => {
+                        const boundUp = bound.clone() as GeographicalPosition;
+                        boundUp.altitude = boundUp.altitude + bounds.height;
+                        boundsArray.push(boundUp);
+                    });
+                }
+            } else {
+                const topRight = topLeft
+                    .toVector3(LengthUnit.METER)
+                    .add(new Vector3(bounds.width, 0, 0).applyEuler(eulerRotation));
+                const bottomLeft = topLeft
+                    .toVector3(LengthUnit.METER)
+                    .add(new Vector3(0, bounds.length, 0).applyEuler(eulerRotation));
+                const bottomRight = topLeft
+                    .toVector3(LengthUnit.METER)
+                    .add(new Vector3(bounds.width, bounds.length, 0).applyEuler(eulerRotation));
+                boundsArray.push(topLeft.clone().fromVector(bottomLeft, LengthUnit.METER));
+                boundsArray.push(topLeft);
+                boundsArray.push(topLeft.clone().fromVector(topRight, LengthUnit.METER));
+                boundsArray.push(topLeft.clone().fromVector(bottomRight, LengthUnit.METER));
+            }
+            this._setArrayBounds(boundsArray as T[]);
         } else {
             this._setArrayBounds([bounds.topLeft, bounds.bottomRight]);
         }
@@ -204,7 +227,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         });
     }
 
-    private _update(): void {
+    protected updateCentroid(): void {
         this.centroid = new this.positionConstructor();
         this.centroid.referenceSpaceUID = this.uid;
         const centerPoint = this.coordinates.reduce((a, b) => a.clone().add(b)).divideScalar(this.coordinates.length);
@@ -220,13 +243,17 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         super.parent = loc;
     }
 
+    get parent(): SymbolicSpace<any> {
+        return super.parent as SymbolicSpace<any>;
+    }
+
     /**
      * Check if a position lies within a symbolic location
      *
      * @param {AbsolutePosition} position Absolute position to check
      * @returns {boolean} Point inside boundaries
      */
-    isInside(position: T): boolean {
+    isInside(position: AbsolutePosition): boolean {
         const transformedPosition = position instanceof this.positionConstructor ? position : this.transform(position);
         const point = transformedPosition.toVector3(LengthUnit.METER);
         let inside = false;
@@ -346,21 +373,25 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     }
 }
 
-type RectangleCornerBoundary<T extends AbsolutePosition> = {
+export type RectangleCornerBoundary<T extends AbsolutePosition> = {
     topLeft: T;
     bottomRight: T;
 };
 
-type RectangleRotationBoundary<T extends AbsolutePosition> = {
+export type RectangleRotationBoundary<T extends AbsolutePosition> = {
     topLeft: T;
     /**
      * Width of the boundary in meters
      */
     width: number;
     /**
+     * Length of the boundary in meters
+     */
+    height?: number;
+    /**
      * Height of the boundary in meters
      */
-    height: number;
+    length: number;
     /**
      * Rotation of the boundary in degrees
      *

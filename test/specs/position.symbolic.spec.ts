@@ -15,7 +15,7 @@ import {
     Room,
     SymbolicSpace
 } from '../../src';
-import { off } from 'process';
+const GEOJSON = require('../data/spaces.geo.json');
 
 describe('SymbolicSpace', () => {
     const building = new Building("Pleinlaan 9")
@@ -24,7 +24,7 @@ describe('SymbolicSpace', () => {
                 50.8203726927966, 4.392241309019189
             ),
             width: 46.275,
-            height: 37.27,
+            length: 37.27,
             rotation: -34.04
         });
     const floor = new Floor("3")
@@ -112,7 +112,8 @@ describe('SymbolicSpace', () => {
                     50.8203726927966, 4.392241309019189, 5
                 ),
                 width: 46.275,
-                height: 37.27,
+                length: 37.27,
+                height: 50,
                 rotation: -34.04
             });
         const floor = new Floor("3")
@@ -154,7 +155,7 @@ describe('SymbolicSpace', () => {
             ]);
 
         it('should get the accuracy of the centroid', () => {
-            expect(building.toPosition().accuracy.value).to.equal(29.722476796755185);
+            expect(building.toPosition().accuracy.value).to.equal(38.838455460807545);
         });
 
         it('building should support rectangular boundaries', () => {
@@ -165,7 +166,7 @@ describe('SymbolicSpace', () => {
 
         it('building should support local boundaries', () => {
             const bounds = building.getLocalBounds();
-            expect(bounds.length).to.equal(4);
+            expect(bounds.length).to.equal(8);
         });
 
         it('should support transforming a 2d position to geographical position', () => {
@@ -179,15 +180,16 @@ describe('SymbolicSpace', () => {
             // console.log(pos)
         });
 
-        it('should find a floor', () => {
+        it('should check if a position is inside a floor', () => {
             const pos = new Absolute2DPosition(20.45354852804289, 39.14921958288905);
             const inside = floor.isInside(pos);
-            //   console.log(inside);
         });
 
         it('floor should use local boundaries of a building', () => {
+            const buildingBounds = building.getBounds().map(b => b.toVector3());
+            expect(buildingBounds.length).to.equal(8);
             const bounds = floor.getBounds().map(b => b.toVector3());
-            expect(bounds.length).to.equal(4);
+            expect(bounds.length).to.equal(8);
         });
 
         it('should convert a position in the office to a geographical position', () => {
@@ -224,7 +226,7 @@ describe('SymbolicSpace', () => {
                     50.8203726927966, 4.392241309019189
                 ),
                 width: 46.275,
-                height: 37.27,
+                length: 37.27,
                 rotation: -34.04
             });
         const floor = new Floor("3")

@@ -15,6 +15,7 @@ import {
     Room,
     SymbolicSpace
 } from '../../src';
+import * as Spaces from '../data/Spaces';
 const GEOJSON = require('../data/spaces.geo.json');
 
 describe('SymbolicSpace', () => {
@@ -40,7 +41,7 @@ describe('SymbolicSpace', () => {
     describe('wkt', () => {
 
         it('should be convertable to well-known text', () => {
-            expect(office.toWKT()).to.equal("POLYGON Z ((4.392206408821251 50.82040934759197 8.999999999068677, 4.39227447178681 50.8204383948112 8.999999999068677, 4.392245784742611 50.82046522268625 8.999999999068677, 4.392177721737949 50.820436175467016 8.999999999068677))");
+            expect(office.toWKT()).to.equal("POLYGON Z ((4.39227447178681 50.8204383948112 8.999999999068677, 4.392245784742611 50.82046522268625 8.999999999068677, 4.392206408821251 50.82040934759197 8.999999999068677, 4.392177721737949 50.820436175467016 8.999999999068677, 4.392245784742611 50.82046522268625 11.999999999068677, 4.392206408821251 50.82040934759197 11.999999999068677, 4.39227447178681 50.8204383948112 11.999999999068677, 4.392177721737949 50.820436175467016 11.999999999068677))");
         });
 
     });
@@ -166,7 +167,7 @@ describe('SymbolicSpace', () => {
 
         it('building should support local boundaries', () => {
             const bounds = building.getLocalBounds();
-            expect(bounds.length).to.equal(8);
+            expect(bounds.length).to.equal(4);
         });
 
         it('should support transforming a 2d position to geographical position', () => {
@@ -204,14 +205,14 @@ describe('SymbolicSpace', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
             expect(pos.latitude).to.equal(50.82043728514493);
             expect(pos.longitude).to.equal(4.3922260967656905);
-            expect(Math.round(pos.altitude)).to.equal(9 + 5);
+            expect(Math.round(pos.altitude)).to.equal(9 + 6);
             const obj = new DataObject();
             obj.setPosition(office.toPosition(), office);
         });
 
         it('should transform a floor', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
-            expect(Math.round(pos.altitude)).to.equal(9 + 5);
+            expect(Math.round(pos.altitude)).to.equal(9 + 6);
         });
 
         it('should be serializable to JSON', () => {
@@ -245,9 +246,22 @@ describe('SymbolicSpace', () => {
             const office2 = SymbolicSpace.fromGeoJSON(office.toGeoJSON());
             office2.parent = floor;
             expect(office2.isInside(office2.toPosition())).to.be.true;
+            // console.log(office.toPosition(), office.getBounds())
+            // console.log(office.transform(office.toPosition()))
             expect(office2.isInside(office.transform(office.toPosition()))).to.be.true;
             expect(office2.isInside(office2.transform(office.toPosition()))).to.be.true;
             expect(office2.isInside(office.toPosition())).to.be.true;
+        });
+
+        it('should serialize multiple spaces to geojson', () => {
+            const geojson = {
+                type: "FeatureCollection",
+                features: Object.keys(Spaces).map(spaceName => {
+                    const space: SymbolicSpace<any> = Spaces[spaceName];
+                    return space.toGeoJSON();
+                })  
+            };
+           // console.log(JSON.stringify(geojson, null, 2))
         });
     });
 });

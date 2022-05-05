@@ -6,6 +6,7 @@ import {
     Vector2,
     AbsolutePosition,
     SpaceTransformationOptions,
+    Absolute3DPosition,
 } from '@openhps/core';
 import { SymbolicSpace } from './SymbolicSpace';
 
@@ -17,10 +18,15 @@ import { SymbolicSpace } from './SymbolicSpace';
 @SerializableObject()
 export class Building extends SymbolicSpace<GeographicalPosition> {
     getLocalBounds(): Absolute2DPosition[] {
+        const bounds = this.getBounds();
+        if (bounds.length === 0) {
+            return [];
+        }
+        const hasElevation = bounds.reduce((a, b) => a + b.altitude, 0) / bounds.length !== bounds[0].altitude;
         const localBounds = [new Absolute2DPosition(0, 0)];
-        for (let i = 1; i < this.getBounds().length; i++) {
-            const b1 = this.getBounds()[i - 1];
-            const b2 = this.getBounds()[i];
+        for (let i = 1; i < bounds.length / (hasElevation ? 2 : 1); i++) {
+            const b1 = bounds[i - 1];
+            const b2 = bounds[i];
             const d = b1.distanceTo(b2);
             const a = b1.angleTo(b2) - this.rotationQuaternion.toEuler().z;
             const prev = localBounds[i - 1];
@@ -57,6 +63,12 @@ export class Building extends SymbolicSpace<GeographicalPosition> {
             );
             localOrigin.fromVector(localOriginVector);
             return localOrigin as unknown as Out;
+        } else if (position instanceof Absolute3DPosition) {
+            const geoPos: GeographicalPosition = origin
+                .destination(angle, position.x)
+                .destination(angle - 90, position.y);
+            geoPos.altitude += position.z;
+            return geoPos as unknown as Out;
         } else if (position instanceof Absolute2DPosition) {
             return origin.destination(angle, position.x).destination(angle - 90, position.y) as unknown as Out;
         }

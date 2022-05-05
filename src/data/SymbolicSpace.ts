@@ -119,24 +119,33 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         this.displayName = displayName;
     }
 
+    /**
+     * Get the boundary type
+     *
+     * @returns {Constructor<AbsolutePosition>} Absolute position constructor
+     */
+    get boundaryType(): new () => T {
+        return this.positionConstructor;
+    }
+
     setBounds(bounds: T[]): this;
     setBounds(bounds: RectangleCornerBoundary<T>): this;
     setBounds(bounds: RectangleRotationBoundary<T>): this;
     setBounds(bounds: any): this {
         if (Array.isArray(bounds)) {
             // Array bounds
-            this._setArrayBounds(bounds);
+            this.setArrayBounds(bounds);
         } else if ('topLeft' in bounds) {
             // Rectangle boundary
-            this._setRectangleBounds(bounds);
+            this.setRectangleBounds(bounds);
         }
         this.updateCentroid();
         return this;
     }
 
-    private _setRectangleBounds(bounds: RectangleRotationBoundary<T>): void;
-    private _setRectangleBounds(bounds: RectangleCornerBoundary<T>): void;
-    private _setRectangleBounds(bounds: any): void {
+    protected setRectangleBounds(bounds: RectangleRotationBoundary<T>): void;
+    protected setRectangleBounds(bounds: RectangleCornerBoundary<T>): void;
+    protected setRectangleBounds(bounds: any): void {
         if ('width' in bounds) {
             const topLeft: T = bounds.topLeft;
 
@@ -174,13 +183,13 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 boundsArray.push(topLeft.clone().fromVector(topRight, LengthUnit.METER));
                 boundsArray.push(topLeft.clone().fromVector(bottomRight, LengthUnit.METER));
             }
-            this._setArrayBounds(boundsArray as T[]);
+            this.setArrayBounds(boundsArray as T[]);
         } else {
-            this._setArrayBounds([bounds.topLeft, bounds.bottomRight]);
+            this.setArrayBounds([bounds.topLeft, bounds.bottomRight]);
         }
     }
 
-    private _setArrayBounds(bounds: T[]): void {
+    protected setArrayBounds(bounds: T[]): void {
         this.positionConstructor = bounds[0].constructor as new () => T;
         const points = bounds.map((bound) => bound.toVector3(LengthUnit.METER));
 
@@ -263,20 +272,18 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                       .map((pos) => this.transform(pos))
                       .map((pos) => pos.toVector3(LengthUnit.METER))
                 : this.coordinates;
+        const zSorted = coordinates.map((c) => c.z).sort((a, b) => a - b);
+        const minZ = zSorted[0];
+        const maxZ = zSorted[zSorted.length - 1];
         for (let i = 0, j = coordinates.length - 1; i < coordinates.length; j = i++) {
             const xi = coordinates[i].x;
             const yi = coordinates[i].y;
-            const zi = coordinates[i].z;
             const xj = coordinates[j].x;
             const yj = coordinates[j].y;
-            const zj = coordinates[j].z;
-            const intersect =
-                yi > point.y != yj > point.y &&
-                zi >= point.z != zj > point.z &&
-                point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
+            const intersect = yi > point.y != yj > point.y && point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
             if (intersect) inside = !inside;
         }
-        return inside;
+        return inside && point.z >= minZ && point.z <= maxZ;
     }
 
     /**
@@ -327,9 +334,15 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         instance.parentUID = json.properties.parent_uid;
         instance.priority = json.properties.priority;
         instance.displayName = json.properties.name;
-        instance.setBounds(
-            json.geometry.coordinates[0].map((pos: number[]) => new GeographicalPosition(pos[1], pos[0], pos[2])),
-        );
+        instance.coordinates = json.geometry.coordinates[0].map((pos: number[]) => {
+            const position = new GeographicalPosition();
+            position.x = pos[0];
+            position.y = pos[1];
+            position.z = pos[2];
+            return position.toVector3(LengthUnit.METER);
+        });
+        instance.positionConstructor = GeographicalPosition;
+        instance.updateCentroid();
         return instance;
     }
 
@@ -359,6 +372,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 parent_uid: this.parentUID,
                 priority: this.priority,
                 type: this.constructor.name,
+                boundaryType: this.positionConstructor.name,
             },
         };
     }

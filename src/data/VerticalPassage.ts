@@ -1,5 +1,5 @@
-import { Absolute2DPosition, SerializableObject } from '@openhps/core';
-import { SymbolicSpace } from './SymbolicSpace';
+import { SerializableObject } from '@openhps/core';
+import { CellSpace } from './gml/CellSpace';
 
 @SerializableObject()
-export class VerticalPassage extends SymbolicSpace<Absolute2DPosition> {}
+export class VerticalPassage extends CellSpace {}

@@ -6,27 +6,32 @@ import { SymbolicSpace } from './SymbolicSpace';
  * A floor represents a symbolic space inside a building.
  */
 @SerializableObject()
-export class Floor<P extends Absolute2DPosition | Absolute3DPosition = Absolute3DPosition> extends SymbolicSpace<P> {
+export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition> {
     @SerializableMember()
-    groundHeight = 0;
+    groundHeight: number = undefined;
     @SerializableMember()
     floorLevel: number;
     @SerializableMember()
     ceilingHeight: number;
 
-    setBounds(localBounds: any): this {
-        let bounds: Absolute3DPosition[] = localBounds.map((bound: P) => {
+    protected setArrayBounds(localBounds: Absolute3DPosition[] | Absolute2DPosition[]): this {
+        const bounds: Absolute3DPosition[] = localBounds.map((bound) => {
             const vector = bound.toVector3();
-            return new Absolute3DPosition(vector.x, vector.y, this.groundHeight ?? vector.z ?? 0);
+            return new Absolute3DPosition(vector.x, vector.y, 0);
         });
         if (this.ceilingHeight) {
-            bounds = bounds.map((bound) => {
-                const clonedBound = bound.clone();
-                clonedBound.z = clonedBound.z + this.ceilingHeight;
-                return clonedBound;
-            });
+            bounds.push(
+                ...bounds.map((bound) => {
+                    const clonedBound = bound.clone();
+                    clonedBound.z = clonedBound.z + this.ceilingHeight;
+                    return clonedBound;
+                }),
+            );
+            if (localBounds.length === 2) {
+                bounds.splice(1, 2);
+            }
         }
-        super.setBounds(bounds as P[]);
+        super.setArrayBounds(bounds);
         return this;
     }
 
@@ -45,7 +50,7 @@ export class Floor<P extends Absolute2DPosition | Absolute3DPosition = Absolute3
 
     protected updateBounds(): void {
         if (this.parent) {
-            this.setBounds((this.parent as Building).getLocalBounds() as P[]);
+            this.setBounds((this.parent as Building).getLocalBounds() as Absolute3DPosition[]);
         }
     }
 
@@ -57,8 +62,8 @@ export class Floor<P extends Absolute2DPosition | Absolute3DPosition = Absolute3
      * @returns {Floor} Floor instance
      */
     setFloorNumber(floor: number, floorHeight = 3): this {
-        this.translation(0, 0, floor * floorHeight);
         this.floorLevel = floor;
+        this.setGroundHeight(this.groundHeight ?? floor * floorHeight);
         this.setCeilingHeight(floorHeight);
         this.updateBounds();
         return this;
@@ -83,6 +88,7 @@ export class Floor<P extends Absolute2DPosition | Absolute3DPosition = Absolute3
      */
     setGroundHeight(height: number): this {
         this.groundHeight = height;
+        this.translation(0, 0, this.groundHeight);
         return this;
     }
 

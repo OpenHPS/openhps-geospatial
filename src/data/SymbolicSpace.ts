@@ -202,8 +202,8 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             const zCount = points.map((p) => p.z).reduce((a, b) => a + b);
             if (zCount !== 0) {
                 // 3D
-                this.coordinates.push(topLeft);
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
+                this.coordinates.push(topLeft);
                 this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, diff.y, 0)));
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, diff.z)));
@@ -266,7 +266,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         const transformedPosition = position instanceof this.positionConstructor ? position : this.transform(position);
         const point = transformedPosition.toVector3(LengthUnit.METER);
         let inside = false;
-        const coordinates: Vector3[] =
+        let coordinates: Vector3[] =
             position instanceof GeographicalPosition && this.positionConstructor.name !== GeographicalPosition.name
                 ? this.getBounds()
                       .map((pos) => this.transform(pos))
@@ -275,6 +275,8 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         const zSorted = coordinates.map((c) => c.z).sort((a, b) => a - b);
         const minZ = zSorted[0];
         const maxZ = zSorted[zSorted.length - 1];
+        if (minZ !== maxZ && this.positionConstructor.name !== GeographicalPosition.name)
+            coordinates = coordinates.filter((c) => c.z === minZ);
         for (let i = 0, j = coordinates.length - 1; i < coordinates.length; j = i++) {
             const xi = coordinates[i].x;
             const yi = coordinates[i].y;
@@ -334,6 +336,12 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         instance.parentUID = json.properties.parent_uid;
         instance.priority = json.properties.priority;
         instance.displayName = json.properties.name;
+        if (json.properties.transformationMatrix) {
+            instance.transformationMatrix.elements = json.properties.transformationMatrix;
+        }
+        if (json.properties.scaleMatrix) {
+            instance.scaleMatrix.elements = json.properties.scaleMatrix;
+        }
         instance.coordinates = json.geometry.coordinates[0].map((pos: number[]) => {
             const position = new GeographicalPosition();
             position.x = pos[0];
@@ -372,6 +380,8 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 parent_uid: this.parentUID,
                 priority: this.priority,
                 type: this.constructor.name,
+                transformationMatrix: this.transformationMatrix.elements,
+                scaleMatrix: this.scaleMatrix.elements,
                 boundaryType: this.positionConstructor.name,
             },
         };

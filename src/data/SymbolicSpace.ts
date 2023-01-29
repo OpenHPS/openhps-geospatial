@@ -15,6 +15,7 @@ import {
     Accuracy1D,
 } from '@openhps/core';
 const wkt = require('wkt');
+const pointInPolygon = require('point-in-polygon');
 
 /**
  * A symbolic space can be used to indicate an abstract space with a boundary.
@@ -157,10 +158,10 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 const topRight: GeographicalPosition = topLeft.destination(bounds.rotation, bounds.width);
                 const bottomLeft: GeographicalPosition = topLeft.destination(bounds.rotation + 90, bounds.length);
                 const bottomRight: GeographicalPosition = topRight.destination(bounds.rotation + 90, bounds.length);
-                boundsArray.push(bottomLeft);
                 boundsArray.push(topLeft);
-                boundsArray.push(topRight);
+                boundsArray.push(bottomLeft);
                 boundsArray.push(bottomRight);
+                boundsArray.push(topRight);
                 if (bounds.height) {
                     boundsArray.forEach((bound) => {
                         const boundUp = bound.clone() as GeographicalPosition;
@@ -178,10 +179,10 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 const bottomRight = topLeft
                     .toVector3(LengthUnit.METER)
                     .add(new Vector3(bounds.width, bounds.length, 0).applyEuler(eulerRotation));
-                boundsArray.push(topLeft.clone().fromVector(bottomLeft, LengthUnit.METER));
                 boundsArray.push(topLeft);
-                boundsArray.push(topLeft.clone().fromVector(topRight, LengthUnit.METER));
+                boundsArray.push(topLeft.clone().fromVector(bottomLeft, LengthUnit.METER));
                 boundsArray.push(topLeft.clone().fromVector(bottomRight, LengthUnit.METER));
+                boundsArray.push(topLeft.clone().fromVector(topRight, LengthUnit.METER));
             }
             this.setArrayBounds(boundsArray as T[]);
         } else {
@@ -202,20 +203,20 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             const zCount = points.map((p) => p.z).reduce((a, b) => a + b);
             if (zCount !== 0) {
                 // 3D
-                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
                 this.coordinates.push(topLeft);
-                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, diff.y, 0)));
-                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, diff.z)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
                 this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, diff.z)));
-                this.coordinates.push(topLeft.clone().add(new Vector3(0, 0, diff.z)));
                 this.coordinates.push(bottomRight);
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, diff.z)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(0, 0, diff.z)));
             } else {
                 // 2D
-                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
                 this.coordinates.push(topLeft);
-                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
                 this.coordinates.push(bottomRight);
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
             }
         } else {
             // Polygon
@@ -264,28 +265,25 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      */
     isInside(position: AbsolutePosition): boolean {
         const transformedPosition = position instanceof this.positionConstructor ? position : this.transform(position);
-        const point = transformedPosition.toVector3(LengthUnit.METER);
-        let inside = false;
-        let coordinates: Vector3[] =
-            position instanceof GeographicalPosition && this.positionConstructor.name !== GeographicalPosition.name
-                ? this.getBounds()
-                      .map((pos) => this.transform(pos))
-                      .map((pos) => pos.toVector3(LengthUnit.METER))
-                : this.coordinates;
+        const isGeo = position instanceof GeographicalPosition;
+        const point = isGeo ? transformedPosition.toVector3() : transformedPosition.toVector3(LengthUnit.METER);
+        let coordinates: Vector3[] = this.coordinates;
+        if (isGeo) {
+            const bounds = this.getBounds();
+            if (this.positionConstructor.name === GeographicalPosition.name) {
+                coordinates = bounds.map((pos) => pos.toVector3());
+            } else {
+                coordinates = bounds.map((pos) => this.transform(pos)).map((pos) => pos.toVector3());
+            }
+        }
         const zSorted = coordinates.map((c) => c.z).sort((a, b) => a - b);
         const minZ = zSorted[0];
         const maxZ = zSorted[zSorted.length - 1];
-        if (minZ !== maxZ && this.positionConstructor.name !== GeographicalPosition.name)
+        if (minZ !== maxZ && this.positionConstructor.name !== GeographicalPosition.name) {
             coordinates = coordinates.filter((c) => c.z === minZ);
-        for (let i = 0, j = coordinates.length - 1; i < coordinates.length; j = i++) {
-            const xi = coordinates[i].x;
-            const yi = coordinates[i].y;
-            const xj = coordinates[j].x;
-            const yj = coordinates[j].y;
-            const intersect = yi > point.y != yj > point.y && point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
-            if (intersect) inside = !inside;
         }
-        return inside && point.z >= minZ && point.z <= maxZ;
+        console.log([point.x, point.y], coordinates.map(c => [c.x, c.y]), pointInPolygon([point.x, point.y], coordinates.map(c => [c.x, c.y])))
+        return pointInPolygon([point.x, point.y], coordinates.map(c => [c.x, c.y])) && point.z >= minZ && point.z <= maxZ;
     }
 
     /**
@@ -370,7 +368,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 type: 'Polygon',
                 coordinates: [
                     this.getBounds()
-                        .map((pos) => this.transform(pos))
+                        .map((pos) => (pos instanceof GeographicalPosition ? pos : this.transform(pos)))
                         .map((p) => p.toVector3().toArray()),
                 ],
             },
@@ -423,3 +421,4 @@ export type RectangleRotationBoundary<T extends AbsolutePosition> = {
      */
     rotation?: number;
 };
+

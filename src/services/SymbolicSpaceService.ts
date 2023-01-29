@@ -2,7 +2,7 @@ import { AbsolutePosition, DataObjectService, DataServiceDriver } from '@openhps
 import { SymbolicSpace } from '../data';
 
 /**
- * Geocorder service for reverse geocoding a position to a symbolic space.
+ * Geocoder service for reverse geocoding a position to a symbolic space.
  */
 export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObjectService<T> {
     constructor(dataServiceDriver?: DataServiceDriver<string, T>) {

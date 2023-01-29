@@ -282,14 +282,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         if (minZ !== maxZ && this.positionConstructor.name !== GeographicalPosition.name) {
             coordinates = coordinates.filter((c) => c.z === minZ);
         }
-        console.log(
-            [point.x, point.y],
-            coordinates.map((c) => [c.x, c.y]),
-            pointInPolygon(
-                [point.x, point.y],
-                coordinates.map((c) => [c.x, c.y]),
-            ),
-        );
         return (
             pointInPolygon(
                 [point.x, point.y],

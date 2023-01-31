@@ -54,18 +54,18 @@ const hallway = new Corridor('Corridor')
     .setUID('pl9_3_corridor')
     .setFloor(floor)
     .setBounds([
-        new Absolute2DPosition(0, 0),
-        new Absolute2DPosition(0, 13.73),
-        new Absolute2DPosition(10.102, 13.73),
-        new Absolute2DPosition(10.102, 23.54),
-        new Absolute2DPosition(0, 23.54),
-        new Absolute2DPosition(0, 37.27),
-        new Absolute2DPosition(44.33, 37.27),
-        new Absolute2DPosition(44.33, 23.54),
-        new Absolute2DPosition(28.06, 23.54),
-        new Absolute2DPosition(28.06, 13.73),
-        new Absolute2DPosition(44.33, 13.73),
-        new Absolute2DPosition(44.33, 0),
+        new Absolute2DPosition(2.39, 6.015),
+        new Absolute2DPosition(2.39, 7.715),
+        new Absolute2DPosition(18.015, 7.715),
+        new Absolute2DPosition(18.015, 29.555),
+        new Absolute2DPosition(2.39, 29.555),
+        new Absolute2DPosition(2.39, 31.255),
+        new Absolute2DPosition(41.94, 31.255),
+        new Absolute2DPosition(41.94, 29.555),
+        new Absolute2DPosition(20.315, 29.555),
+        new Absolute2DPosition(20.315, 7.715),
+        new Absolute2DPosition(41.94, 7.715),
+        new Absolute2DPosition(41.94, 6.015),
     ]);
 const lobby = new Zone('Lobby #1')
     .setUID('pl9_3_lobby_1')

@@ -20,6 +20,17 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
         return new Promise((resolve, reject) => {
             this.findAll()
                 .then((results) => {
+                    console.log(
+                        results
+                            .map((res) => {
+                                if (res.parentUID) {
+                                    const parent = results.filter((r) => r.uid === res.parentUID);
+                                    res.parent = parent.length > 0 ? parent[0] : undefined;
+                                }
+                                return res;
+                            })
+                            .filter((res) => res.isInside(position)),
+                    );
                     resolve(
                         results
                             .map((res) => {

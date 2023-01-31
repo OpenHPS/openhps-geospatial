@@ -17,46 +17,67 @@ import {
 } from '../../src';
 import * as Spaces from '../data/Spaces';
 const GEOJSON = require('../data/spaces.geo.json');
-const pointInPolygon = require('point-in-polygon');
 
 describe('SymbolicSpace', () => {
     const building = new Building("Pleinlaan 9")
         .setBounds({
             topLeft: new GeographicalPosition(
-                50.8203726927966, 4.392241309019189
+                50.8203726927966, 4.392241309019189, 83
             ),
             width: 46.275,
             length: 37.27,
             rotation: -34.04
         });
-    const floor = new Floor("3")
+    const floor = new Floor('3')
+        .setUID('pl9_3')
         .setBuilding(building)
-        .setFloorNumber(3);
+        .setFloorNumber(3)
+        .setBounds([
+            new Absolute2DPosition(0, 0),
+            new Absolute2DPosition(0, 13.73),
+            new Absolute2DPosition(10.102, 13.73),
+            new Absolute2DPosition(10.102, 23.54),
+            new Absolute2DPosition(0, 23.54),
+            new Absolute2DPosition(0, 37.27),
+            new Absolute2DPosition(44.33, 37.27),
+            new Absolute2DPosition(44.33, 23.54),
+            new Absolute2DPosition(28.06, 23.54),
+            new Absolute2DPosition(28.06, 13.73),
+            new Absolute2DPosition(44.33, 13.73),
+            new Absolute2DPosition(44.33, 0),
+        ]);
+    const lab = new Room('PL9.3.54')
+        .setUID('pl9_3_54')
+        .setFloor(floor)
+        .setBounds([new Absolute2DPosition(13.15, 31.25), new Absolute2DPosition(25.15, 37.02)]);
+    const hallway = new Corridor('Corridor')
+        .setUID('pl9_3_corridor')
+        .setFloor(floor)
+        .setBounds([
+            new Absolute2DPosition(2.39, 6.015),
+            new Absolute2DPosition(2.39, 7.715),
+            new Absolute2DPosition(18.015, 7.715),
+            new Absolute2DPosition(18.015, 29.555),
+            new Absolute2DPosition(2.39, 29.555),
+            new Absolute2DPosition(2.39, 31.255),
+            new Absolute2DPosition(41.94, 31.255),
+            new Absolute2DPosition(41.94, 29.555),
+            new Absolute2DPosition(20.315, 29.555),
+            new Absolute2DPosition(20.315, 7.715),
+            new Absolute2DPosition(41.94, 7.715),
+            new Absolute2DPosition(41.94, 6.015),
+        ]);
     const office = new Room("3.58")
         .setFloor(floor)
         .setBounds([
             new Absolute2DPosition(4.75, 31.25),
             new Absolute2DPosition(8.35, 37.02),
         ]);
-        
-    describe('isInside()', () => {
-        it('should work for 2d coords', () => {
-            let polygon = [
-                [ 5, 5 ], [ 10, 5 ], [ 10, 10 ], [ 5, 10 ]
-            ];
-            let point = [
-                7.5, 7.5
-            ];
-            expect(pointInPolygon(point, polygon)).to.eq(true);
-            point = [ 3, 2 ]; 
-            expect(pointInPolygon(point, polygon)).to.eq(false);
-        });
-    });
 
     describe('wkt', () => {
 
         it('should be convertable to well-known text', () => {
-            expect(building.toWKT()).to.equal("POLYGON Z ((4.392241309019188 50.8203726927966 9.313225746154785e-10, 4.392680949135989 50.820560314350246 -9.313225746154785e-10, 4.392312206587188 50.82090516391093 1.862645149230957e-9, 4.391872563223554 50.820717542357286 0))");
+            expect(building.toWKT()).to.equal("POLYGON Z ((4.392241309019188 50.8203726927966 83.00000000093132, 4.392680949135989 50.820560314350246 82.99999999813735, 4.392312206587188 50.82090516391092 83.00000000093132, 4.391872563223554 50.82071754235728 82.99999999906868))");
         });
 
     });
@@ -72,6 +93,7 @@ describe('SymbolicSpace', () => {
     describe('boundaries', () => {
 
         it('should create a 2D boundary from the TL and BR points', () => {
+            const geojson = building.toGeoJSON();
             const office = new SymbolicSpace<Absolute2DPosition>("PL9.3.58");
             office.setBounds([
                 new Absolute2DPosition(5, 5),
@@ -122,13 +144,19 @@ describe('SymbolicSpace', () => {
             expect(office.isInside(new Absolute3DPosition(5, 5, 100))).to.be.false;
         });
 
+        it('should correctly identify if a point is inside', () => {
+            const pos = lab.toPosition();
+            expect(lab.isInside(pos)).to.be.true;
+            expect(hallway.isInside(pos)).to.be.false;
+        });
+
     });
 
     describe('conversion', () => {
         const building = new Building("Pleinlaan 9")
             .setBounds({
                 topLeft: new GeographicalPosition(
-                    50.8203726927966, 4.392241309019189, 5
+                    50.8203726927966, 4.392241309019189, 83
                 ),
                 width: 46.275,
                 length: 37.27,
@@ -190,7 +218,7 @@ describe('SymbolicSpace', () => {
 
         it('should support transforming a 2d position to geographical position', () => {
             const pos: GeographicalPosition = building.transform(new Absolute2DPosition(5, 37));
-            expect(Math.round(pos.altitude)).to.equal(5);
+            expect(Math.round(pos.altitude)).to.equal(83);
             console.log(pos)
         });
 
@@ -221,16 +249,16 @@ describe('SymbolicSpace', () => {
 
         it('should transform an office', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
-            expect(pos.latitude).to.equal(50.82024966359129);
-            expect(pos.longitude).to.equal(4.391786458476479);
-            expect(Math.round(pos.altitude)).to.equal(9 + 6);
+            expect(pos.latitude).to.equal(50.82043728514493);
+            expect(pos.longitude).to.equal(4.3922260967656905);
+            expect(Math.round(pos.altitude)).to.equal(83 + 9 + 1);
             const obj = new DataObject();
             obj.setPosition(office.toPosition(), office);
         });
 
         it('should transform a floor', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
-            expect(Math.round(pos.altitude)).to.equal(9 + 6);
+            expect(Math.round(pos.altitude)).to.equal(83 + 9 + 1);
         });
 
         it('should be serializable to JSON', () => {
@@ -258,17 +286,14 @@ describe('SymbolicSpace', () => {
                 new Absolute2DPosition(8.35, 37.02),
             ]);
 
-        it('should serialize a building to geojson abc123', () => {
+        it('should serialize a building to geojson', () => {
             const serialized = building.toGeoJSON();
             const deserialized = Building.fromGeoJSON(serialized);
             const office2 = SymbolicSpace.fromGeoJSON(office.toGeoJSON());
             office2.parent = floor;
-            // expect(office2.isInside(office2.toPosition())).to.be.true;
-            // // console.log(office.toPosition(), office.getBounds())
-            // // console.log(office.transform(office.toPosition()))
-            // expect(office2.isInside(office.transform(office.toPosition()))).to.be.true;
-            // expect(office2.isInside(office2.transform(office.toPosition()))).to.be.true;
-            // expect(office2.isInside(office.toPosition())).to.be.true;
+            expect(office2.isInside(office2.toPosition())).to.be.true;
+            expect(office2.isInside(office.transform(office.toPosition()))).to.be.true;
+            expect(office2.isInside(office2.transform(office.toPosition()))).to.be.true;
         });
 
         it('should serialize multiple spaces to geojson', () => {

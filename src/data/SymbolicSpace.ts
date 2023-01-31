@@ -13,9 +13,10 @@ import {
     GeographicalPosition,
     Constructor,
     Accuracy1D,
+    Quaternion,
+    Absolute3DPosition,
 } from '@openhps/core';
 const wkt = require('wkt');
-const pointInPolygon = require('point-in-polygon');
 
 /**
  * A symbolic space can be used to indicate an abstract space with a boundary.
@@ -151,7 +152,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             const topLeft: T = bounds.topLeft;
 
             const eulerRotation = new Euler(0, 0, bounds.rotation, 'XYZ', AngleUnit.DEGREE);
-            this.rotation(eulerRotation);
+            this.rotation(eulerRotation); // Reference space transformation
 
             const boundsArray: AbsolutePosition[] = [];
             if (topLeft instanceof GeographicalPosition) {
@@ -162,13 +163,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 boundsArray.push(bottomLeft);
                 boundsArray.push(bottomRight);
                 boundsArray.push(topRight);
-                if (bounds.height) {
-                    boundsArray.forEach((bound) => {
-                        const boundUp = bound.clone() as GeographicalPosition;
-                        boundUp.altitude = boundUp.altitude + bounds.height;
-                        boundsArray.push(boundUp);
-                    });
-                }
             } else {
                 const topRight = topLeft
                     .toVector3(LengthUnit.METER)
@@ -183,6 +177,13 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 boundsArray.push(topLeft.clone().fromVector(bottomLeft, LengthUnit.METER));
                 boundsArray.push(topLeft.clone().fromVector(bottomRight, LengthUnit.METER));
                 boundsArray.push(topLeft.clone().fromVector(topRight, LengthUnit.METER));
+            }
+            if (bounds.height) {
+                boundsArray.forEach((bound) => {
+                    const boundUp = bound.clone() as Absolute3DPosition;
+                    boundUp.z = boundUp.z + bounds.height;
+                    boundsArray.push(boundUp);
+                });
             }
             this.setArrayBounds(boundsArray as T[]);
         } else {
@@ -279,17 +280,41 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         const zSorted = coordinates.map((c) => c.z).sort((a, b) => a - b);
         const minZ = zSorted[0];
         const maxZ = zSorted[zSorted.length - 1];
-        if (minZ !== maxZ && this.positionConstructor.name !== GeographicalPosition.name) {
-            coordinates = coordinates.filter((c) => c.z === minZ);
+        if (minZ !== maxZ) {
+            coordinates = coordinates.filter((c) => Math.round(c.z) === Math.round(minZ));
         }
         return (
-            pointInPolygon(
+            this._rayCasting(
                 [point.x, point.y],
                 coordinates.map((c) => [c.x, c.y]),
             ) &&
             point.z >= minZ &&
             point.z <= maxZ
         );
+    }
+
+    private _rayCasting(point: number[], polygon: number[][]) {
+        const n = polygon.length;
+        let isIn = false;
+        const x = point[0];
+        const y = point[1];
+        let x1, x2, y1, y2;
+
+        x1 = polygon[n - 1][0];
+        y1 = polygon[n - 1][1];
+
+        for (let i = 0; i < n; ++i) {
+            x2 = polygon[i][0];
+            y2 = polygon[i][1];
+
+            if (y < y1 !== y < y2 && x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1) {
+                isIn = !isIn;
+            }
+            x1 = x2;
+            y1 = y2;
+        }
+
+        return isIn;
     }
 
     /**
@@ -343,8 +368,14 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         if (json.properties.transformationMatrix) {
             instance.transformationMatrix.elements = json.properties.transformationMatrix;
         }
+        if (json.properties.translationMatrix) {
+            instance.translationMatrix.elements = json.properties.translationMatrix;
+        }
         if (json.properties.scaleMatrix) {
             instance.scaleMatrix.elements = json.properties.scaleMatrix;
+        }
+        if (json.properties.rotationQuaternion) {
+            instance.rotationQuaternion = new Quaternion(...instance.rotationQuaternion);
         }
         instance.coordinates = json.geometry.coordinates[0].map((pos: number[]) => {
             const position = new GeographicalPosition();
@@ -385,7 +416,14 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 priority: this.priority,
                 type: this.constructor.name,
                 transformationMatrix: this.transformationMatrix.elements,
+                rotationQuaternion: [
+                    this.rotationQuaternion.x,
+                    this.rotationQuaternion.y,
+                    this.rotationQuaternion.z,
+                    this.rotationQuaternion.w,
+                ],
                 scaleMatrix: this.scaleMatrix.elements,
+                translationMatrix: this.translationMatrix.elements,
                 boundaryType: this.positionConstructor.name,
             },
         };

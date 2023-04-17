@@ -296,6 +296,21 @@ describe('SymbolicSpace', () => {
             expect(office2.isInside(office2.transform(office.toPosition()))).to.be.true;
         });
 
+        // it('should serialize a building and floor to geojson', () => {
+        //     const serialized = building.toGeoJSON();
+        //     const deserialized = Building.fromGeoJSON(serialized);
+        //     const floor2 = SymbolicSpace.fromGeoJSON(floor.toGeoJSON()) as Floor;
+        //     expect(floor.groundHeight).to.equal(floor2.groundHeight)
+        //     const office2 = SymbolicSpace.fromGeoJSON(office.toGeoJSON());
+        //     office2.parent = floor2;
+        //     floor2.parent = deserialized;
+        //     expect(office2.isInside(office2.toPosition())).to.be.true;
+        //     expect(office2.isInside(office.transform(office.toPosition()))).to.be.true;
+        //     console.log(floor2)
+        //     expect(office2.isInside(office2.transform(office.toPosition()))).to.be.true;
+        // });
+
+
         it('should serialize multiple spaces to geojson', () => {
             const geojson = {
                 type: "FeatureCollection",

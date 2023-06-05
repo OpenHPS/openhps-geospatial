@@ -351,6 +351,9 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {SymbolicSpace} symbolic space instance
      */
     static fromGeoJSON<T extends typeof SymbolicSpace>(json: any): InstanceType<T> {
+        if (!json) {
+            return undefined;
+        }
         if (!json.properties) {
             json.properties = {};
         }
@@ -392,7 +395,11 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     }
 
     static fromWKT<T extends typeof SymbolicSpace>(wktLiteral: string): InstanceType<T> {
-        return this.fromGeoJSON(wkt.parse(wktLiteral));
+        const geojson = wkt.parse(wktLiteral);
+        if (!geojson) {
+            throw new Error(`Unable to deserialize well-known text for ${wktLiteral}`);
+        }
+        return this.fromGeoJSON(geojson);
     }
 
     /**

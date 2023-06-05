@@ -11,7 +11,6 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
 
     /**
      * Find a data object by its current absolute position
-     *
      * @param {AbsolutePosition} position Current absolute position
      * @returns {DataObject[]} Array of data objects that match the position
      */
@@ -28,7 +27,6 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
     /**
      * Find symbolic spaces and their probability using an absolute position
      * Perform reverse geocoding on an absolute position.
-     *
      * @param {AbsolutePosition} position Position to reverse geocode
      * @returns {Promise<Array<[SymbolicSpace, number]>>} A promise of an array of symbolic spaces and their probability
      */

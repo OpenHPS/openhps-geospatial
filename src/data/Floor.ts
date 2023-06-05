@@ -37,7 +37,6 @@ export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition
 
     /**
      * Set the building this floor belongs to
-     *
      * @param {Building} building Building
      * @returns {Floor} instance
      */
@@ -56,9 +55,8 @@ export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition
 
     /**
      * Set the floor number
-     *
      * @param {number} floor Floor number
-     * @param {number} [floorHeight=3] Ceiling floor height (meters)
+     * @param {number} [floorHeight] Ceiling floor height (meters)
      * @returns {Floor} Floor instance
      */
     setFloorNumber(floor: number, floorHeight = 3): this {
@@ -71,7 +69,6 @@ export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition
 
     /**
      * Set the height of the floor
-     *
      * @deprecated Use setGroundHeight
      * @param {number} height Height of the floor
      * @returns {Floor} Floor instance
@@ -82,7 +79,6 @@ export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition
 
     /**
      * Set the ground height of the floor
-     *
      * @param {number} height Height of the floor
      * @returns {Floor} Floor instance
      */
@@ -94,7 +90,6 @@ export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition
 
     /**
      * Set the ceiling height of the floor
-     *
      * @param {number} height Ceiling height of the floor
      * @returns {Floor} Floor instance
      */

@@ -22,7 +22,6 @@ export class CellSpace extends SymbolicSpace<Absolute3DPosition | Absolute2DPosi
 
     /**
      * Set the floor this cell space belongs to
-     *
      * @param {Floor} floor Floor object
      * @returns {CellSpace} cell space instance
      */

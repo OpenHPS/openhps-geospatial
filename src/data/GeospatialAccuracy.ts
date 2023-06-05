@@ -19,7 +19,6 @@ export class GeospatialAccuracy<T extends SymbolicSpace<P>, P extends AbsolutePo
 
     /**
      * Get the largest distance as a 1D accuracy
-     *
      * @returns {number} 1D Accuracy
      */
     valueOf(): number {

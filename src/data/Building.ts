@@ -43,7 +43,6 @@ export class Building extends SymbolicSpace<GeographicalPosition> {
 
     /**
      * Transform a position
-     *
      * @param {AbsolutePosition} position Position to transform
      * @param {SpaceTransformationOptions} [options] Transformation options
      * @returns {AbsolutePosition} Transformed position

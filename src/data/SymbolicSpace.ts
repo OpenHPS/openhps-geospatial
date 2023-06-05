@@ -123,7 +123,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Get the boundary type
-     *
      * @returns {Constructor<AbsolutePosition>} Absolute position constructor
      */
     get boundaryType(): new () => T {
@@ -227,7 +226,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Get the boundaries of the space
-     *
      * @returns {AbsolutePosition[]} Array of boundary position
      */
     getBounds(): T[] {
@@ -247,7 +245,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Set the parent symbolic location
-     *
      * @param {SymbolicSpace} loc Parent symbolic location
      */
     set parent(loc: SymbolicSpace<any>) {
@@ -260,7 +257,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Check if a position lies within a symbolic location
-     *
      * @param {AbsolutePosition} position Absolute position to check
      * @returns {boolean} Point inside boundaries
      */
@@ -319,7 +315,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Check if the space is connected to another
-     *
      * @param {SymbolicSpace} space Space to check if connected
      * @returns {boolean} connected or not
      */
@@ -329,7 +324,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Add a connected space
-     *
      * @param {SymbolicSpace} space Connected space
      * @param {AbsolutePosition} [position] Position of connection
      * @returns {SymbolicSpace} instance
@@ -341,7 +335,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Convert the symbolic space to an absolute position
-     *
      * @returns {AbsolutePosition} Absolute position
      */
     toPosition(): T {
@@ -354,13 +347,20 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Create a new symbolic space GeoJSON
-     *
      * @param {any} json GeoJSON
      * @returns {SymbolicSpace} symbolic space instance
      */
     static fromGeoJSON<T extends typeof SymbolicSpace>(json: any): InstanceType<T> {
-        const dataType = DataSerializer.findTypeByName(json.properties.type) as Constructor<T>;
-        const instance = new dataType() as InstanceType<T>;
+        if (!json.properties) {
+            json.properties = {};
+        }
+        let instance = undefined;
+        if (json.properties.type) {
+            const dataType = DataSerializer.findTypeByName(json.properties.type) as Constructor<T>;
+            instance = new dataType() as InstanceType<T>;
+        } else {
+            instance = new SymbolicSpace();
+        }
         instance.uid = json.properties.uid;
         instance.parentUID = json.properties.parent_uid;
         instance.priority = json.properties.priority;
@@ -377,16 +377,18 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         if (json.properties.rotationQuaternion) {
             instance.rotationQuaternion = new Quaternion(...instance.rotationQuaternion);
         }
-        instance.coordinates = json.geometry.coordinates[0].map((pos: number[]) => {
-            const position = new GeographicalPosition();
-            position.x = pos[0];
-            position.y = pos[1];
-            position.z = pos[2];
-            return position.toVector3(LengthUnit.METER);
-        });
+        instance.coordinates = ((json.geometry && json.geometry.coordinates) ?? json.coordinates)[0].map(
+            (pos: number[]) => {
+                const position = new GeographicalPosition();
+                position.x = pos[0];
+                position.y = pos[1];
+                position.z = pos[2];
+                return position.toVector3(LengthUnit.METER);
+            },
+        );
         instance.positionConstructor = GeographicalPosition;
         instance.updateCentroid();
-        return instance;
+        return instance as InstanceType<T>;
     }
 
     static fromWKT<T extends typeof SymbolicSpace>(wktLiteral: string): InstanceType<T> {
@@ -395,7 +397,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Convert the symbolic space to GeoJSON
-     *
      * @returns {any} GeoJSON
      */
     toGeoJSON(): any {
@@ -431,7 +432,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Convert the symbolic space to well-known text representation
-     *
      * @returns {string} WKT
      */
     toWKT(): string {
@@ -460,7 +460,6 @@ export type RectangleRotationBoundary<T extends AbsolutePosition> = {
     length: number;
     /**
      * Rotation of the boundary in degrees
-     *
      * @default 0
      */
     rotation?: number;

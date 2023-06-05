@@ -80,6 +80,10 @@ describe('SymbolicSpace', () => {
             expect(building.toWKT()).to.equal("POLYGON Z ((4.392241309019188 50.8203726927966 83.00000000093132, 4.392680949135989 50.820560314350246 82.99999999813735, 4.392312206587188 50.82090516391092 83.00000000093132, 4.391872563223554 50.82071754235728 82.99999999906868))");
         });
 
+        it('should be convertable from well-known text', () => {
+            SymbolicSpace.fromWKT((building.toWKT()));    
+        });
+
     });
 
     describe('geojson', () => {

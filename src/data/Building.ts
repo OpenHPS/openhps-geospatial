@@ -51,13 +51,13 @@ export class Building extends SymbolicSpace<GeographicalPosition> {
         position: In,
         options?: SpaceTransformationOptions,
     ): Out {
-        const origin: GeographicalPosition = this.getBounds()[1];
+        const origin: GeographicalPosition = this.origin as GeographicalPosition;
         const angle = this.rotationQuaternion.toEuler().yaw;
 
         if (position instanceof GeographicalPosition) {
             const d = origin.distanceTo(position);
             const a = angle - origin.bearing(position);
-            const localOrigin = this.getLocalBounds()[1].clone();
+            const localOrigin = this.getLocalBounds()[0].clone();
             const localOriginVector = new Vector2(localOrigin.x, localOrigin.y);
             localOriginVector.add(
                 new Vector2(d).rotateAround(new Vector2(0, 0), AngleUnit.DEGREE.convert(a, AngleUnit.RADIAN)),

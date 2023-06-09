@@ -115,6 +115,8 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         constructor: Number,
     })
     priority = 0;
+    @SerializableMember()
+    origin: AbsolutePosition;
 
     constructor(displayName?: string) {
         super();
@@ -159,9 +161,11 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 const bottomLeft: GeographicalPosition = topLeft.destination(bounds.rotation + 90, bounds.length);
                 const bottomRight: GeographicalPosition = topRight.destination(bounds.rotation + 90, bounds.length);
                 boundsArray.push(topLeft);
-                boundsArray.push(bottomLeft);
-                boundsArray.push(bottomRight);
                 boundsArray.push(topRight);
+                boundsArray.push(bottomRight);
+                boundsArray.push(bottomLeft); 
+                boundsArray.push(topLeft);
+                this.origin = bottomLeft.clone();
             } else {
                 const topRight = topLeft
                     .toVector3(LengthUnit.METER)
@@ -173,9 +177,13 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                     .toVector3(LengthUnit.METER)
                     .add(new Vector3(bounds.width, bounds.length, 0).applyEuler(eulerRotation));
                 boundsArray.push(topLeft);
-                boundsArray.push(topLeft.clone().fromVector(bottomLeft, LengthUnit.METER));
-                boundsArray.push(topLeft.clone().fromVector(bottomRight, LengthUnit.METER));
                 boundsArray.push(topLeft.clone().fromVector(topRight, LengthUnit.METER));
+                boundsArray.push(topLeft.clone().fromVector(bottomRight, LengthUnit.METER));
+                boundsArray.push(topLeft.clone().fromVector(bottomLeft, LengthUnit.METER));
+                boundsArray.push(topLeft);
+                
+                this.origin = new this.positionConstructor();
+                this.origin.fromVector(bottomLeft.clone());
             }
             if (bounds.height) {
                 boundsArray.forEach((bound) => {
@@ -183,6 +191,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                     boundUp.z = boundUp.z + bounds.height;
                     boundsArray.push(boundUp);
                 });
+                (this.origin as Absolute3DPosition).z += bounds.height;
             }
             this.setArrayBounds(boundsArray as T[]);
         } else {
@@ -207,21 +216,27 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, diff.y, 0)));
                 this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
-                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, diff.z)));
-                this.coordinates.push(bottomRight);
-                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, diff.z)));
+
                 this.coordinates.push(topLeft.clone().add(new Vector3(0, 0, diff.z)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, diff.z)));
+                this.coordinates.push(bottomRight);
+                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, diff.z)));
+                this.coordinates.push(topLeft); // Closed
             } else {
                 // 2D
                 this.coordinates.push(topLeft);
                 this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
                 this.coordinates.push(bottomRight);
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
+                this.coordinates.push(topLeft);
             }
         } else {
             // Polygon
             this.coordinates = points;
-        }
+            if (this.coordinates[0].toArray() !== this.coordinates[this.coordinates.length - 1].toArray()) {
+                this.coordinates.push(this.coordinates[0]);
+            }
+         }
     }
 
     /**
@@ -239,7 +254,11 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     protected updateCentroid(): void {
         this.centroid = new this.positionConstructor();
         this.centroid.referenceSpaceUID = this.uid;
-        const centerPoint = this.coordinates.reduce((a, b) => a.clone().add(b)).divideScalar(this.coordinates.length);
+        const filteredCoordinates = this.coordinates
+            .filter((e, i) => this.coordinates.indexOf(e) === i);
+        const centerPoint = filteredCoordinates
+            .reduce((a, b) => a.clone().add(b))
+            .divideScalar(filteredCoordinates.length);
         this.centroid.fromVector(centerPoint, LengthUnit.METER);
     }
 
@@ -291,11 +310,13 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     private _rayCasting(point: number[], polygon: number[][]) {
         const n = polygon.length;
+        if (n === 0) {
+            return false;
+        }
         let isIn = false;
         const x = point[0];
         const y = point[1];
         let x1, x2, y1, y2;
-
         x1 = polygon[n - 1][0];
         y1 = polygon[n - 1][1];
 
@@ -446,7 +467,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {string} WKT
      */
     toWKT(): string {
-        console.log(JSON.stringify(this.toGeoJSON().geometry.coordinates, null, 2));
         return wkt.stringify(this.toGeoJSON());
     }
 }

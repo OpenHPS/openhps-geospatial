@@ -1,12 +1,12 @@
 {
-  "name": "@openhps/spaces",
-  "version": "0.1.0-alpha.7",
+  "name": "@openhps/geospatial",
+  "version": "0.1.20",
   "description": "Open Hybrid Positioning System",
   "author": "Maxim Van de Wynckel",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenHPS/openhps-spaces.git"
+    "url": "https://github.com/OpenHPS/openhps-geospatial.git"
   },
   "publishConfig": {
     "access": "public"
@@ -18,8 +18,8 @@
     "require": "./dist/cjs/index.js",
     "import": "./dist/esm/index.js"
   },
-  "unpkg": "dist/web/openhps-spaces.min.js",
-  "jsdelivr": "dist/web/openhps-spaces.min.js",
+  "unpkg": "dist/web/openhps-geospatial.min.js",
+  "jsdelivr": "dist/web/openhps-geospatial.min.js",
   "files": [
     "dist/**/*",
     "src/**/*"
@@ -27,6 +27,7 @@
   "scripts": {
     "test": "mocha --config test/.mocharc.json",
     "cover": "nyc mocha --config test/.mocharc.json && nyc report --reporter=cobertura",
+    "cover:ci": "nyc mocha --config test/.mocharc.json --reporter mocha-junit-reporter && nyc report --reporter=cobertura",
     "lint": "eslint src/**",
     "clean": "shx rm -rf ./dist && shx rm -rf ./docs/out",
     "build": "npm run clean && npm-run-all --parallel build:esm build:cjs build:typedoc && npm run build:webpack",
@@ -36,57 +37,59 @@
     "build:webpack:prod": "webpack --env prod --",
     "build:webpack:dev": "webpack --env dev --",
     "build:typedoc": "typedoc --options docs/typedoc.json",
-    "publish:development": "npm run bump:beta && npm publish --tag dev",
-    "publish:beta": "npm run bump:beta && npm publish --tag beta",
-    "publish:release": "npm run bump:beta && npm publish --tag latest",
     "bump:development": "standard-version --prerelease alpha -m 'chore(alpha): %s' --skip.changelog",
     "bump:beta": "standard-version --prerelease beta -m 'chore(beta): %s' --skip.changelog",
-    "bump:release": "standard-version -m 'chore(release): %s' --skip.changelog"
+    "bump:release": "standard-version -m 'chore(release): %s' --skip.changelog",
+    "generate": "ts-node ./test/bin/generate.ts"
   },
   "keywords": [
     "openhps",
-    "symbolic location"
+    "symbolic location",
+    "geospatial data"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "robust-point-in-polygon": "^1.0.3",
+    "robust-predicates": "^3.0.2",
+    "wkt": "^0.1.1"
+  },
   "peerDependencies": {
-    "@openhps/core": ">=0.3.1",
+    "@openhps/core": ">=0.4.20",
     "reflect-metadata": ">=0.1.13"
   },
   "devDependencies": {
-    "@babel/cli": "^7.15.7",
-    "@babel/core": "^7.15.8",
-    "@babel/preset-env": "^7.15.8",
-    "@commitlint/cli": "^13.2.1",
-    "@commitlint/config-conventional": "^13.2.0",
-    "@openhps/core": ">=0.3.1",
-    "@purtuga/esm-webpack-plugin": "^1.5.0",
-    "@types/chai": "^4.2.22",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "^16.11.1",
-    "@typescript-eslint/eslint-plugin": "^5.1.0",
-    "@typescript-eslint/parser": "^5.1.0",
-    "chai": "^4.3.4",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-deprecation": "^1.2.1",
-    "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-jsdoc": "^36.1.1",
-    "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.2",
-    "mocha": "^9.1.3",
-    "mocha-junit-reporter": "^2.0.2",
+    "@babel/cli": "^7.21.5",
+    "@babel/core": "^7.22.1",
+    "@babel/preset-env": "^7.22.4",
+    "@commitlint/cli": "^17.6.5",
+    "@commitlint/config-conventional": "^17.6.5",
+    "@openhps/core": ">=0.4.20",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.2.5",
+    "@typescript-eslint/eslint-plugin": "^5.59.9",
+    "@typescript-eslint/parser": "^5.59.9",
+    "chai": "^4.3.7",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-deprecation": "^1.4.1",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsdoc": "^46.2.4",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.3",
+    "mocha": "^10.2.0",
+    "mocha-junit-reporter": "^2.2.0",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.1.0",
-    "prettier": "^2.4.1",
+    "prettier": "^2.8.8",
     "reflect-metadata": ">=0.1.13",
-    "shx": "^0.3.3",
-    "standard-version": "^9.3.2",
-    "terser-webpack-plugin": "^5.2.4",
-    "ts-node": ">=10.3.0",
-    "typedoc": "^0.22.6",
-    "typescript": "^4.4.4",
-    "webpack": "^5.59.0",
-    "webpack-cli": "^4.9.1"
+    "shx": "^0.3.4",
+    "standard-version": "^9.5.0",
+    "terser-webpack-plugin": "^5.3.9",
+    "ts-node": ">=10.9.1",
+    "typedoc": "^0.24.8",
+    "typescript": "^5.1.3",
+    "webpack": "^5.85.1",
+    "webpack-cli": "^5.1.3"
   },
   "nyc": {
     "branches": 0,

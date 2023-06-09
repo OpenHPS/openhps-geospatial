@@ -3,10 +3,11 @@ import {
     AngleUnit,
     GeographicalPosition,
     SerializableObject,
-    Euler,
     Vector2,
     AbsolutePosition,
     SpaceTransformationOptions,
+    Absolute3DPosition,
+    Vector3,
 } from '@openhps/core';
 import { SymbolicSpace } from './SymbolicSpace';
 
@@ -17,27 +18,16 @@ import { SymbolicSpace } from './SymbolicSpace';
  */
 @SerializableObject()
 export class Building extends SymbolicSpace<GeographicalPosition> {
-    setBounds(bounds: any): this {
-        if (Array.isArray(bounds)) {
-            super.setBounds(bounds);
-        } else if ('width' in bounds) {
-            const eulerRotation = new Euler(0, 0, bounds.rotation, 'XYZ', AngleUnit.DEGREE);
-            this.rotation(eulerRotation);
-            const topRight = bounds.topLeft.destination(bounds.rotation, bounds.width);
-            const bottomRight = topRight.destination(bounds.rotation + 90, bounds.height);
-            const bottomLeft = bounds.topLeft.destination(bounds.rotation + 90, bounds.height);
-            super.setBounds([bottomLeft, bounds.topLeft, topRight, bottomRight]);
-        } else {
-            super.setBounds(bounds);
-        }
-        return this;
-    }
-
     getLocalBounds(): Absolute2DPosition[] {
+        const bounds = this.getBounds();
+        if (bounds.length === 0) {
+            return [];
+        }
+        const hasElevation = bounds.reduce((a, b) => a + b.altitude, 0) / bounds.length !== bounds[0].altitude;
         const localBounds = [new Absolute2DPosition(0, 0)];
-        for (let i = 1; i < this.getBounds().length; i++) {
-            const b1 = this.getBounds()[i - 1];
-            const b2 = this.getBounds()[i];
+        for (let i = 1; i < bounds.length / (hasElevation ? 2 : 1); i++) {
+            const b1 = bounds[i - 1];
+            const b2 = bounds[i];
             const d = b1.distanceTo(b2);
             const a = b1.angleTo(b2) - this.rotationQuaternion.toEuler().z;
             const prev = localBounds[i - 1];
@@ -53,7 +43,6 @@ export class Building extends SymbolicSpace<GeographicalPosition> {
 
     /**
      * Transform a position
-     *
      * @param {AbsolutePosition} position Position to transform
      * @param {SpaceTransformationOptions} [options] Transformation options
      * @returns {AbsolutePosition} Transformed position
@@ -62,8 +51,9 @@ export class Building extends SymbolicSpace<GeographicalPosition> {
         position: In,
         options?: SpaceTransformationOptions,
     ): Out {
-        const origin: GeographicalPosition = this.getBounds()[0];
+        const origin: GeographicalPosition = this.origin as GeographicalPosition;
         const angle = this.rotationQuaternion.toEuler().yaw;
+
         if (position instanceof GeographicalPosition) {
             const d = origin.distanceTo(position);
             const a = angle - origin.bearing(position);
@@ -72,10 +62,23 @@ export class Building extends SymbolicSpace<GeographicalPosition> {
             localOriginVector.add(
                 new Vector2(d).rotateAround(new Vector2(0, 0), AngleUnit.DEGREE.convert(a, AngleUnit.RADIAN)),
             );
-            localOrigin.fromVector(localOriginVector);
+            localOrigin.fromVector(
+                new Vector3(localOriginVector.x, localOriginVector.y, 0).applyMatrix4(this.translationMatrix),
+            );
             return localOrigin as unknown as Out;
+        } else if (position instanceof Absolute3DPosition) {
+            const geoPos: GeographicalPosition = origin
+                .destination(angle, position.x)
+                .destination(angle - 90, position.y);
+            geoPos.altitude += position.z;
+            geoPos.fromVector(geoPos.toVector3().applyMatrix4(this.translationMatrix));
+            return geoPos as unknown as Out;
         } else if (position instanceof Absolute2DPosition) {
-            return origin.destination(angle, position.x).destination(angle - 90, position.y) as unknown as Out;
+            const newPosition = origin
+                .destination(angle, position.x)
+                .destination(angle - 90, position.y) as unknown as Out;
+            newPosition.fromVector(newPosition.toVector3().applyMatrix4(this.translationMatrix));
+            return newPosition;
         }
     }
 }

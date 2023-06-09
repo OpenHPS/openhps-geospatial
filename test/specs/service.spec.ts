@@ -18,16 +18,18 @@ import {
     SymbolicSpace,
     SymbolicSpaceService
 } from '../../src';
+const GEOJSON = require('../data/spaces.geo.json');
 
 describe('SymbolicSpaceService', () => {
     const building = new Building("Pleinlaan 9")
     .setBounds({
         topLeft: new GeographicalPosition(
-            50.8203726927966, 4.392241309019189
+            50.8203726927966, 4.392241309019189, 83
         ),
         width: 46.275,
-        height: 37.27,
-        rotation: -34.04
+        length: 37.27,
+        rotation: -34.04,
+        height: 50
     });
 const floor = new Floor("3")
     .setBuilding(building)
@@ -84,9 +86,31 @@ const hallway = new Corridor()
 
     it('should find the best space', (done) => {
         service.findSymbolicSpaces(lab.toPosition()).then(results => {
+            expect(results.length).to.be.greaterThan(0);
             expect(results[0][0].uid).to.equal(lab.uid);
             done();
         }).catch(done);
     });
 
+    it('should find the best space when a geographical position is provided', (done) => {
+        const position = lab.transform(lab.toPosition());
+        service.findSymbolicSpaces(position).then(results => {
+            expect(results[0][0].uid).to.equal(lab.uid);
+            done();
+        }).catch(done);
+    });
+
+    it('should find the best space when a geographical position is provided on a geojson source', (done) => {
+        service.deleteAll().then(() => {
+            return Promise.all(GEOJSON.features.map(
+                feature => SymbolicSpace.fromGeoJSON(feature)
+            ).map(space => service.insertObject(space)));
+        }).then(() => {
+            const position = lab.transform(lab.toPosition());
+            return service.findSymbolicSpaces(position)
+        }).then(results => {
+            expect(results[0][0].uid).to.equal("pl9_3_54");
+            done();
+        }).catch(done);
+    });
 });

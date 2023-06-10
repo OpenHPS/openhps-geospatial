@@ -380,15 +380,15 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         if (json.properties.rotationQuaternion) {
             instance.rotationQuaternion = new Quaternion(...instance.rotationQuaternion);
         }
-        instance.coordinates = ((json.geometry && json.geometry.coordinates) ?? json.coordinates)[0].map(
-            (pos: number[]) => {
-                const position = new GeographicalPosition();
-                position.x = pos[0];
-                position.y = pos[1];
-                position.z = pos[2];
-                return position.toVector3(LengthUnit.METER);
-            },
-        );
+        instance.coordinates = (
+            json.geometry && json.geometry.coordinates ? json.geometry.coordinates : json.coordinates
+        )[0].map((pos: number[]) => {
+            const position = new GeographicalPosition();
+            position.x = pos[0];
+            position.y = pos[1];
+            position.z = pos[2];
+            return position.toVector3(LengthUnit.METER);
+        });
         instance.positionConstructor = GeographicalPosition;
         instance.updateCentroid();
         return instance as InstanceType<T>;
@@ -404,18 +404,22 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Convert the symbolic space to GeoJSON
+     * @param {boolean} [flat] Flat GeoJSON
      * @returns {any} GeoJSON
      */
-    toGeoJSON(): any {
+    toGeoJSON(flat?: boolean): any {
+        let coordinates = this.getBounds()
+            .map((pos) => (pos instanceof GeographicalPosition ? pos : this.transform(pos)))
+            .map((p) => p.toVector3().toArray())
+            .map((p) => (flat ? [p[0], p[1]] : p));
+        if (flat) {
+            coordinates = coordinates.filter((e, i) => coordinates.indexOf(e) === i);
+        }
         return {
             type: 'Feature',
             geometry: {
                 type: 'Polygon',
-                coordinates: [
-                    this.getBounds()
-                        .map((pos) => (pos instanceof GeographicalPosition ? pos : this.transform(pos)))
-                        .map((p) => p.toVector3().toArray()),
-                ],
+                coordinates: [coordinates],
             },
             properties: {
                 name: this.displayName,
@@ -442,6 +446,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {string} WKT
      */
     toWKT(): string {
+        console.log(JSON.stringify(this.toGeoJSON().geometry.coordinates, null, 2));
         return wkt.stringify(this.toGeoJSON());
     }
 }

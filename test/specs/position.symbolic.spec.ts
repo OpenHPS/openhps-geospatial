@@ -81,7 +81,8 @@ describe('SymbolicSpace', () => {
         });
 
         it('should be convertable from well-known text', () => {
-            SymbolicSpace.fromWKT((building.toWKT()));    
+            const deserialized = SymbolicSpace.fromWKT((building.toWKT()));    
+            console.log(deserialized);
         });
 
     });
@@ -90,6 +91,10 @@ describe('SymbolicSpace', () => {
         
         it('should be convertable to geojson', () => {
             office.toGeoJSON()
+        });
+
+        it('should be convertable to flat geojson', () => {
+            office.toGeoJSON(true);
         });
 
     });

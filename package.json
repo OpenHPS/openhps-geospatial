@@ -53,11 +53,7 @@
     "wkt": "^0.1.1"
   },
   "peerDependencies": {
-<<<<<<< HEAD
-    "@openhps/core": ">=0.4.22",
-=======
     "@openhps/core": ">=0.4.23",
->>>>>>> dev
     "reflect-metadata": ">=0.1.13"
   },
   "devDependencies": {
@@ -66,11 +62,7 @@
     "@babel/preset-env": "^7.22.5",
     "@commitlint/cli": "^17.6.5",
     "@commitlint/config-conventional": "^17.6.5",
-<<<<<<< HEAD
-    "@openhps/core": ">=0.4.22",
-=======
     "@openhps/core": ">=0.4.23",
->>>>>>> dev
     "@types/chai": "^4.3.5",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.3.0",

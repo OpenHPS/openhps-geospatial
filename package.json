@@ -1,6 +1,6 @@
 {
   "name": "@openhps/geospatial",
-  "version": "0.1.21-alpha.0",
+  "version": "0.1.21",
   "description": "Open Hybrid Positioning System",
   "author": "Maxim Van de Wynckel",
   "license": "Apache-2.0",

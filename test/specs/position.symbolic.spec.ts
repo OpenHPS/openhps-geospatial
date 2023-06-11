@@ -330,5 +330,20 @@ describe('SymbolicSpace', () => {
             };
            // console.log(JSON.stringify(geojson, null, 2))
         });
+
+        it('should deserialize a space from geojson', () => {
+            const spaces = GEOJSON.features.map(feature => SymbolicSpace.fromGeoJSON(feature));
+            const building = spaces.filter(space => space instanceof Building)[0];
+            const floor = spaces.filter(space => space instanceof Floor)[0];
+            const position = building.transform(
+                floor.transform(new Absolute3DPosition(
+                    10,
+                    10,
+                    1.6
+                ))
+            );
+            expect(position.y).to.eql(50.82065024630042);
+            expect(position.x).to.eql(4.392538595289614);
+        });
     });
 });

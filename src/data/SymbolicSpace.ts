@@ -414,6 +414,15 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             position.z = pos[2];
             return position.toVector3(LengthUnit.METER);
         });
+        const origin = new GeographicalPosition();
+        switch (instance.coordinates.length) {
+            case 5:
+            case 11:
+            case 9:
+                origin.fromVector(instance.coordinates[3], LengthUnit.METER);
+                instance.origin = origin;
+                break;
+        }
         instance.positionConstructor = GeographicalPosition;
         instance.updateCentroid();
         return instance as InstanceType<T>;
@@ -462,6 +471,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 scaleMatrix: this.scaleMatrix.elements,
                 translationMatrix: this.translationMatrix.elements,
                 boundaryType: this.positionConstructor.name,
+                origin: this.origin ? this.origin.toVector3(LengthUnit.METER).toArray() : undefined,
             },
         };
     }

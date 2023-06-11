@@ -52,6 +52,9 @@ export class Building extends SymbolicSpace<GeographicalPosition> {
         options?: SpaceTransformationOptions,
     ): Out {
         const origin: GeographicalPosition = this.origin as GeographicalPosition;
+        if (origin === undefined) {
+            return position as unknown as Out;
+        }
         const angle = this.rotationQuaternion.toEuler().yaw;
         if (position instanceof GeographicalPosition) {
             const d = origin.distanceTo(position);

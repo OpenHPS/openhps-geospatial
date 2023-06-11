@@ -300,7 +300,6 @@ describe('SymbolicSpace', () => {
             const deserialized = Building.fromGeoJSON(serialized);
             const office2 = SymbolicSpace.fromGeoJSON(office.toGeoJSON());
             office2.parent = floor;
-            console.log(office.toGeoJSON().geometry.coordinates)
             expect(office2.isInside(office2.toPosition())).to.be.true;
             expect(office2.isInside(office.transform(office.toPosition()))).to.be.true;
             expect(office2.isInside(office2.transform(office.toPosition()))).to.be.true;

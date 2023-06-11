@@ -163,7 +163,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 boundsArray.push(topLeft);
                 boundsArray.push(topRight);
                 boundsArray.push(bottomRight);
-                boundsArray.push(bottomLeft); 
+                boundsArray.push(bottomLeft);
                 boundsArray.push(topLeft);
                 this.origin = bottomLeft.clone();
             } else {
@@ -181,7 +181,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 boundsArray.push(topLeft.clone().fromVector(bottomRight, LengthUnit.METER));
                 boundsArray.push(topLeft.clone().fromVector(bottomLeft, LengthUnit.METER));
                 boundsArray.push(topLeft);
-                
+
                 this.origin = new this.positionConstructor();
                 this.origin.fromVector(bottomLeft.clone());
             }
@@ -191,7 +191,6 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                     boundUp.z = boundUp.z + bounds.height;
                     boundsArray.push(boundUp);
                 });
-                (this.origin as Absolute3DPosition).z += bounds.height;
             }
             this.setArrayBounds(boundsArray as T[]);
         } else {
@@ -215,7 +214,10 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 this.coordinates.push(topLeft);
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, diff.y, 0)));
-                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
+                const bottomLeft = topLeft.clone().add(new Vector3(0, diff.y, 0));
+                this.coordinates.push(bottomLeft);
+                this.origin = new this.positionConstructor();
+                this.origin.fromVector(bottomLeft.clone());
 
                 this.coordinates.push(topLeft.clone().add(new Vector3(0, 0, diff.z)));
                 this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, diff.z)));
@@ -227,7 +229,10 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
                 this.coordinates.push(topLeft);
                 this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
                 this.coordinates.push(bottomRight);
-                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
+                const bottomLeft = topLeft.clone().add(new Vector3(diff.x, 0, 0));
+                this.origin = new this.positionConstructor();
+                this.origin.fromVector(bottomLeft.clone());
+                this.coordinates.push(bottomLeft);
                 this.coordinates.push(topLeft);
             }
         } else {
@@ -236,7 +241,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             if (this.coordinates[0].toArray() !== this.coordinates[this.coordinates.length - 1].toArray()) {
                 this.coordinates.push(this.coordinates[0]);
             }
-         }
+        }
     }
 
     /**
@@ -254,8 +259,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     protected updateCentroid(): void {
         this.centroid = new this.positionConstructor();
         this.centroid.referenceSpaceUID = this.uid;
-        const filteredCoordinates = this.coordinates
-            .filter((e, i) => this.coordinates.indexOf(e) === i);
+        const filteredCoordinates = this.coordinates.filter((e, i) => this.coordinates.indexOf(e) === i);
         const centerPoint = filteredCoordinates
             .reduce((a, b) => a.clone().add(b))
             .divideScalar(filteredCoordinates.length);

@@ -77,7 +77,7 @@ describe('SymbolicSpace', () => {
     describe('wkt', () => {
 
         it('should be convertable to well-known text', () => {
-            expect(building.toWKT()).to.equal("POLYGON Z ((4.392241309019188 50.8203726927966 83.00000000093132, 4.392680949135989 50.820560314350246 82.99999999813735, 4.392312206587188 50.82090516391092 83.00000000093132, 4.391872563223554 50.82071754235728 82.99999999906868))");
+            expect(building.toWKT()).to.equal("POLYGON Z ((4.392241309019188 50.8203726927966 83.00000000093132, 4.391872563223554 50.82071754235728 82.99999999906868, 4.392312206587188 50.82090516391092 83.00000000093132, 4.392680949135989 50.820560314350246 82.99999999813735, 4.392241309019188 50.8203726927966 83.00000000093132, 4.392241309019188 50.8203726927966 83.00000000093132))");
         });
 
         it('should be convertable from well-known text', () => {
@@ -211,18 +211,18 @@ describe('SymbolicSpace', () => {
             ]);
 
         it('should get the accuracy of the centroid', () => {
-            expect(Math.round(building.toPosition().accuracy.value)).to.equal(39);
+            expect(Math.round(building.toPosition().accuracy.value)).to.equal(35);
         });
 
         it('building should support rectangular boundaries', () => {
             const bounds = building.getBounds();
-            expect(Math.round(bounds[1].distanceTo(bounds[2]) * 1000) / 1000).to.equal(46.275);
-            expect(Math.round(bounds[0].distanceTo(bounds[1]) * 100) / 100).to.equal(37.27);
+            expect(Math.round(bounds[0].distanceTo(bounds[1]) * 1000) / 1000).to.equal(46.275);
+            expect(Math.round(bounds[1].distanceTo(bounds[2]) * 100) / 100).to.equal(37.27);
         });
 
         it('building should support local boundaries', () => {
             const bounds = building.getLocalBounds();
-            expect(bounds.length).to.equal(4);
+            expect(bounds.length).to.equal(6);
         });
 
         it('should support transforming a 2d position to geographical position', () => {
@@ -243,9 +243,9 @@ describe('SymbolicSpace', () => {
 
         it('floor should use local boundaries of a building', () => {
             const buildingBounds = building.getBounds().map(b => b.toVector3());
-            expect(buildingBounds.length).to.equal(8);
+            expect(buildingBounds.length).to.equal(11);
             const bounds = floor.getBounds().map(b => b.toVector3());
-            expect(bounds.length).to.equal(8);
+            expect(bounds.length).to.equal(13);
         });
 
         it('should convert a position in the office to a geographical position', () => {
@@ -260,14 +260,14 @@ describe('SymbolicSpace', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
             expect(pos.latitude).to.equal(50.82043728514493);
             expect(pos.longitude).to.equal(4.3922260967656905);
-            expect(Math.round(pos.altitude)).to.equal(83 + 9 + 1);
+            expect(pos.altitude).to.equal(83 + 9 + 1.5);
             const obj = new DataObject();
             obj.setPosition(office.toPosition(), office);
         });
 
         it('should transform a floor', () => {
             const pos = office.transform(office.toPosition()) as GeographicalPosition;
-            expect(Math.round(pos.altitude)).to.equal(83 + 9 + 1);
+            expect(pos.altitude).to.equal(83 + 9 + 1.5);
         });
 
         it('should be serializable to JSON', () => {

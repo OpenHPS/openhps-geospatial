@@ -227,9 +227,9 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             } else {
                 // 2D
                 this.coordinates.push(topLeft);
-                this.coordinates.push(topLeft.clone().add(new Vector3(0, diff.y, 0)));
+                this.coordinates.push(topLeft.clone().add(new Vector3(diff.x, 0, 0)));
                 this.coordinates.push(bottomRight);
-                const bottomLeft = topLeft.clone().add(new Vector3(diff.x, 0, 0));
+                const bottomLeft = topLeft.clone().add(new Vector3(0, diff.y, 0));
                 this.origin = new this.positionConstructor();
                 this.origin.fromVector(bottomLeft.clone());
                 this.coordinates.push(bottomLeft);
@@ -403,7 +403,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
             instance.scaleMatrix.elements = json.properties.scaleMatrix;
         }
         if (json.properties.rotationQuaternion) {
-            instance.rotationQuaternion = new Quaternion(...instance.rotationQuaternion);
+            instance.rotationQuaternion = new Quaternion(...json.properties.rotationQuaternion);
         }
         instance.coordinates = (
             json.geometry && json.geometry.coordinates ? json.geometry.coordinates : json.coordinates
@@ -444,7 +444,7 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     toGeoJSON(flat?: boolean): any {
         const z = this.getBounds()[0].toVector3().z;
         const coordinates = this.getBounds()
-            .filter((p) => (flat ? !(p.toVector3().z > z + 0.5) : true))
+            .filter((p) => (flat ? !(p.toVector3(LengthUnit.METER).z > z + 0.5) : true))
             .map((pos) => (pos instanceof GeographicalPosition ? pos : this.transform(pos)))
             .map((p) => p.toVector3().toArray())
             .map((p) => (flat ? [p[0], p[1]] : p));

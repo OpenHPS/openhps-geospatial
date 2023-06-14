@@ -97,6 +97,12 @@ describe('SymbolicSpace', () => {
             const flat = office.toGeoJSON(true);
         });
 
+        it('should be convertable to flat geojson', () => {
+            const flat = Spaces.floor.toGeoJSON(true);
+            expect(flat.geometry.coordinates[0].length).to.equal(13);
+            const cube = Spaces.floor.toGeoJSON();
+            expect(cube.geometry.coordinates[0].length).to.be.gt(13);
+        });
     });
 
     describe('boundaries', () => {
@@ -109,9 +115,9 @@ describe('SymbolicSpace', () => {
                 new Absolute2DPosition(10, 10)
             ]);
             expect(office.getBounds()[0].toVector3()).to.deep.equal(new Vector3(5, 5, 0));
-            expect(office.getBounds()[3].toVector3()).to.deep.equal(new Vector3(10, 5, 0));
+            expect(office.getBounds()[1].toVector3()).to.deep.equal(new Vector3(10, 5, 0));
             expect(office.getBounds()[2].toVector3()).to.deep.equal(new Vector3(10, 10, 0));
-            expect(office.getBounds()[1].toVector3()).to.deep.equal(new Vector3(5, 10, 0));
+            expect(office.getBounds()[3].toVector3()).to.deep.equal(new Vector3(5, 10, 0));
             expect(office.toPosition().x).to.equal(7.5);
             expect(office.toPosition().y).to.equal(7.5);
         });
@@ -333,17 +339,24 @@ describe('SymbolicSpace', () => {
 
         it('should deserialize a space from geojson', () => {
             const spaces = GEOJSON.features.map(feature => SymbolicSpace.fromGeoJSON(feature));
-            const building = spaces.filter(space => space instanceof Building)[0];
-            const floor = spaces.filter(space => space instanceof Floor)[0];
-            const position = building.transform(
-                floor.transform(new Absolute3DPosition(
-                    10,
-                    10,
-                    1.6
-                ))
-            );
-            expect(position.y).to.eql(50.82065024630042);
-            expect(position.x).to.eql(4.392538595289614);
+            const building2 = spaces.filter(space => space instanceof Building)[0];
+            const floor2 = spaces.filter(space => space instanceof Floor)[0];
+            let temp: any = floor.transform(new Absolute3DPosition(
+                4.8,
+                35.6,
+                1.6
+            ));
+            const position: GeographicalPosition = building.transform(temp);
+            temp = floor2.transform(new Absolute3DPosition(
+                4.8,
+                35.6,
+                1.6
+            ));
+            const position2: GeographicalPosition = building2.transform(temp);
+            expect(position.y).to.eql(50.820416868740814);
+            expect(position.x).to.eql(4.392222760713255);
+            expect(position2.y).to.eql(50.820416868740814);
+            expect(position2.x).to.eql(4.392222760713255);
         });
     });
 });

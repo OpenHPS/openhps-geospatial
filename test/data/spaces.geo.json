@@ -121,7 +121,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    20.315,
+                    27.27,
+                    0
+                ]
             }
         },
         {
@@ -244,7 +249,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    18.015,
+                    6.015,
+                    0
+                ]
             }
         },
         {
@@ -570,7 +580,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    27.55,
+                    29.5,
+                    0
+                ]
             }
         },
         {
@@ -693,7 +708,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    0.57,
+                    37.02,
+                    0
+                ]
             }
         },
         {
@@ -816,7 +836,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    4.75,
+                    37.02,
+                    0
+                ]
             }
         },
         {
@@ -939,7 +964,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    8.35,
+                    37.02,
+                    0
+                ]
             }
         },
         {
@@ -1062,7 +1092,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    29.97,
+                    37.02,
+                    0
+                ]
             }
         },
         {
@@ -1185,7 +1220,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    13.15,
+                    37.02,
+                    0
+                ]
             }
         },
         {
@@ -1317,7 +1357,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "GeographicalPosition"
+                "boundaryType": "GeographicalPosition",
+                "origin": [
+                    4025716.621942787,
+                    309244.7213029045,
+                    4921022.164048498
+                ]
             }
         },
         {
@@ -1643,7 +1688,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    10.73,
+                    20.06,
+                    0
+                ]
             }
         },
         {
@@ -1766,7 +1816,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    20.315,
+                    20.06,
+                    0
+                ]
             }
         },
         {
@@ -1889,7 +1944,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    15.48,
+                    12.71,
+                    0
+                ]
             }
         },
         {
@@ -2012,7 +2072,12 @@
                     0,
                     1
                 ],
-                "boundaryType": "Absolute3DPosition"
+                "boundaryType": "Absolute3DPosition",
+                "origin": [
+                    15.48,
+                    26.76,
+                    0
+                ]
             }
         }
     ]

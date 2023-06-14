@@ -12,7 +12,7 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
     /**
      * Find a data object by its current absolute position
      * @param {AbsolutePosition} position Current absolute position
-     * @returns {DataObject[]} Array of data objects that match the position
+     * @returns {SymbolicSpace[]} Array of data objects that match the position
      */
     findByPosition(position: AbsolutePosition): Promise<T[]> {
         return new Promise((resolve, reject) => {

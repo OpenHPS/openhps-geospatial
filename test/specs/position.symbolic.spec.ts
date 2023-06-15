@@ -95,6 +95,7 @@ describe('SymbolicSpace', () => {
 
         it('should be convertable to flat geojson', () => {
             const flat = office.toGeoJSON(true);
+            expect(flat.geometry.coordinates[0].length).to.equal(5);
         });
 
         it('should be convertable to flat geojson', () => {

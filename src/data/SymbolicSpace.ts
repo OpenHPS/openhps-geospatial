@@ -442,9 +442,12 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      * @returns {any} GeoJSON
      */
     toGeoJSON(flat?: boolean): any {
-        const z = this.getBounds()[0].toVector3().z;
+        const avgZ =
+            this.getBounds()
+                .map((b) => b.toVector3().z)
+                .reduce((a, b) => a + b) / this.getBounds().length;
         const coordinates = this.getBounds()
-            .filter((p) => (flat ? !(p.toVector3(LengthUnit.METER).z > z + 0.5) : true))
+            .filter((p) => (flat ? !(p.toVector3().z > avgZ) : true))
             .map((pos) => (pos instanceof GeographicalPosition ? pos : this.transform(pos)))
             .map((p) => p.toVector3().toArray())
             .map((p) => (flat ? [p[0], p[1]] : p));

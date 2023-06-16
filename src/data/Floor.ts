@@ -1,4 +1,10 @@
-import { Absolute2DPosition, Absolute3DPosition, SerializableMember, SerializableObject } from '@openhps/core';
+import {
+    Absolute2DPosition,
+    Absolute3DPosition,
+    GeographicalPosition,
+    SerializableMember,
+    SerializableObject,
+} from '@openhps/core';
 import { Building } from './Building';
 import { SymbolicSpace } from './SymbolicSpace';
 
@@ -14,7 +20,10 @@ export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition
     @SerializableMember()
     ceilingHeight: number;
 
-    protected setArrayBounds(localBounds: Absolute3DPosition[] | Absolute2DPosition[]): this {
+    protected setArrayBounds(localBounds: Absolute3DPosition[] | Absolute2DPosition[]): void {
+        if (localBounds.length > 0 && localBounds[0] instanceof GeographicalPosition) {
+            return super.setArrayBounds(localBounds);
+        }
         const bounds: Absolute3DPosition[] = localBounds.map((bound) => {
             const vector = bound.toVector3();
             return new Absolute3DPosition(vector.x, vector.y, 0);
@@ -32,7 +41,6 @@ export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition
             }
         }
         super.setArrayBounds(bounds);
-        return this;
     }
 
     /**

@@ -98,6 +98,14 @@ describe('SymbolicSpace', () => {
             expect(flat.geometry.coordinates[0].length).to.equal(5);
         });
 
+
+        it('should be convertable to flat geojson after a conversion from wkt', () => {
+            const wkt = Spaces.office1.toWKT();
+            const deserialized = SymbolicSpace.fromWKT(wkt);
+            const flat = deserialized.toGeoJSON(true);
+            expect(flat.geometry.coordinates[0].length).to.equal(5);
+        });
+
         it('should be convertable to flat geojson', () => {
             const flat = Spaces.floor.toGeoJSON(true);
             expect(flat.geometry.coordinates[0].length).to.equal(13);

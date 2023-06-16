@@ -1,6 +1,7 @@
 import {
     Absolute2DPosition,
     Absolute3DPosition,
+    GeographicalPosition,
     SerializableArrayMember,
     SerializableMember,
     SerializableObject,
@@ -39,7 +40,10 @@ export class CellSpace extends SymbolicSpace<Absolute3DPosition | Absolute2DPosi
         return super.parent as Floor;
     }
 
-    protected setArrayBounds(localBounds: Absolute3DPosition[] | Absolute2DPosition[]): this {
+    protected setArrayBounds(localBounds: Absolute3DPosition[] | Absolute2DPosition[]): void {
+        if (localBounds.length > 0 && localBounds[0] instanceof GeographicalPosition) {
+            return super.setArrayBounds(localBounds);
+        }
         const bounds: Absolute3DPosition[] = localBounds.map((bound: Absolute3DPosition) => {
             const vector = bound.toVector3();
             return new Absolute3DPosition(vector.x, vector.y, 0);
@@ -57,6 +61,6 @@ export class CellSpace extends SymbolicSpace<Absolute3DPosition | Absolute2DPosi
             }
         }
         super.setArrayBounds(bounds);
-        return this;
+        return;
     }
 }

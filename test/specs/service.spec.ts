@@ -2,13 +2,8 @@ import { expect } from 'chai';
 import 'mocha';
 import { 
     Absolute2DPosition, 
-    Absolute3DPosition, 
-    DataObject, 
-    GCS, 
     GeographicalPosition, 
-    LengthUnit, 
     MemoryDataService, 
-    Vector3
 } from '@openhps/core';
 import {
     Building,
@@ -34,6 +29,9 @@ describe('SymbolicSpaceService', () => {
 const floor = new Floor("3")
     .setBuilding(building)
     .setFloorNumber(3);
+const base = new Floor("0")
+    .setBuilding(building)
+    .setFloorNumber(0);
 const office = new Room("3.58")
     .setFloor(floor)
     .setBounds([
@@ -75,6 +73,7 @@ const hallway = new Corridor()
         Promise.all([
             service.insertObject(building),
             service.insertObject(floor),
+            service.insertObject(base),
             service.insertObject(office),
             service.insertObject(hallway),
             service.insertObject(lab),
@@ -96,6 +95,13 @@ const hallway = new Corridor()
         const position = lab.transform(lab.toPosition());
         service.findSymbolicSpaces(position).then(results => {
             expect(results[0][0].uid).to.equal(lab.uid);
+            done();
+        }).catch(done);
+    });
+
+    it('should return all floors of a building', (done) => {
+        service.findChildren(building).then(floors => {
+            expect(floors.length).to.equal(2);
             done();
         }).catch(done);
     });

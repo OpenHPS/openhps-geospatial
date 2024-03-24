@@ -105,4 +105,28 @@ export class Floor extends SymbolicSpace<Absolute3DPosition | Absolute2DPosition
         this.ceilingHeight = height;
         return this;
     }
+
+    /**
+     * Convert the symbolic space to GeoJSON
+     * @param {boolean} [flat] Flat GeoJSON
+     * @returns {any} GeoJSON
+     */
+    toGeoJSON(flat?: boolean): any {
+        const geojson = super.toGeoJSON(flat);
+        geojson.properties.floorLevel = this.floorLevel;
+        return geojson;
+    }
+
+    // /**
+    //  * Create a new symbolic space GeoJSON
+    //  * @param {any} json GeoJSON
+    //  * @returns {SymbolicSpace} symbolic space instance
+    //  */
+    // static fromGeoJSON<T extends typeof SymbolicSpace>(json: any): InstanceType<T> {
+    //     const floor = super.fromGeoJSON(json) as Floor;
+    //     if (json.properties.floorLevel) {
+    //         floor.floorLevel = json.properties.floorLevel;
+    //     }
+    //     return floor as InstanceType<T>;
+    // }
 }

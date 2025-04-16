@@ -7,15 +7,20 @@ import { Absolute2DPosition } from '@openhps/core';
 export class AbstractLocation extends Absolute2DPosition {
     private _uid: string;
 
-    constructor(uid: string, range: number = 100) {
+    constructor(uid: string, range: number = 1000) {
         super();
         this._uid = uid;
         // Generate X and Y coordinate based on the UID (random)
         // This should be a hash based on the UID string.
-        // Range is the maximum distance from the origin (0,0) to the location.
-        const hash = this.hashCode(uid);
-        this.x = (hash % range) - range / 2;
-        this.y = (hash % range) - range / 2;
+        // Range is the radius of the circle around the origin (0,0).
+        const hashX = this.hashCode(uid + 'x' + range);
+        const hashY = this.hashCode(uid + 'y' + range * 2);
+        const angleX = ((hashX % 360) + 45) * (Math.PI / 180); // Offset angle for better distribution
+        const angleY = ((hashY % 360) + 90) * (Math.PI / 180); // Offset angle for better distribution
+        const radiusX = ((hashX % range) + 1) * 0.9; // Slightly scale radius for distinction
+        const radiusY = ((hashY % range) + 1) * 1.1; // Slightly scale radius for distinction
+        this.x = Math.cos(angleX) * radiusX;
+        this.y = Math.sin(angleY) * radiusY;
     }
 
     get uid(): string {
@@ -25,9 +30,10 @@ export class AbstractLocation extends Absolute2DPosition {
     hashCode(str: string): number {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
-            hash = (hash << 5) - hash + str.charCodeAt(i);
-            hash |= 0; // Convert to 32bit integer
+            const char = str.charCodeAt(i);
+            hash = Math.imul(hash ^ char, 2654435761); // Use a prime multiplier for better distribution
+            hash = (hash << 13) | (hash >>> 19); // Bitwise rotation for added randomness
         }
-        return hash;
+        return Math.abs(hash);
     }
 }

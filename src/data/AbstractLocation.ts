@@ -1,13 +1,17 @@
-import { Absolute2DPosition } from '@openhps/core';
+import { Absolute2DPosition, SerializableMember, SerializableObject } from '@openhps/core';
 
 /**
  * An abstract location is identified by a unique identifier (UID).
  * It generates a random location based on the UID allowing it to be used in fingerprinting algorithms.
  */
+@SerializableObject()
 export class AbstractLocation extends Absolute2DPosition {
+    @SerializableMember({
+        name: 'uid',
+    })
     private _uid: string;
 
-    constructor(uid: string, range: number = 1000) {
+    constructor(uid?: string, range: number = 1000) {
         super();
         this._uid = uid;
         // Generate X and Y coordinate based on the UID (random)
@@ -28,6 +32,7 @@ export class AbstractLocation extends Absolute2DPosition {
     }
 
     hashCode(str: string): number {
+        str = str.toLowerCase();
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
             const char = str.charCodeAt(i);

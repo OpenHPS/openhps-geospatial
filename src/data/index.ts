@@ -8,3 +8,4 @@ export * from './VerticalPassage';
 export * from './Elevator';
 export * from './GeospatialAccuracy';
 export * from './gml';
+export * from './AbstractLocation';

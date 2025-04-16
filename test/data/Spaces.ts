@@ -91,6 +91,10 @@ const stairs = new Corridor('Staircase')
     .setUID('pl9_3_staircase')
     .setFloor(floor)
     .setBounds([new Absolute2DPosition(20.315, 17.22), new Absolute2DPosition(27.56, 20.06)]);
+
+const abstractRoom = new Room('Test-Room1');
+abstractRoom.setPosition(abstractRoom.toLocation());
+
 export {
     lobby,
     lobby2,

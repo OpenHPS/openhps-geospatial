@@ -16,6 +16,7 @@ import {
     Quaternion,
     Absolute3DPosition,
 } from '@openhps/core';
+import { AbstractLocation } from './AbstractLocation';
 const wkt = require('wkt');
 
 /**
@@ -484,6 +485,10 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
      */
     toWKT(): string {
         return wkt.stringify(this.toGeoJSON());
+    }
+
+    toLocation(): AbstractLocation {
+        return new AbstractLocation(this.uid, 100);
     }
 }
 

@@ -12,7 +12,7 @@
     <a href="https://codeclimate.com/github/OpenHPS/openhps-geospatial/" target="_blank">
         <img alt="Maintainability" src="https://img.shields.io/codeclimate/maintainability/OpenHPS/openhps-geospatial">
     </a>
-    <a href="https://badge.fury.io/js/@openhps%geospatial">
+    <a href="https://badge.fury.io/js/@openhps%2Fgeospatial">
         <img src="https://badge.fury.io/js/@openhps%2Fgeospatial.svg" alt="npm version" height="18">
     </a>
 </p>
@@ -101,7 +101,7 @@ position.accuracy = new GeospatialAccuracy(floor);
 The framework is open source and is mainly developed by PhD Student Maxim Van de Wynckel as part of his research towards *Hybrid Positioning and Implicit Human-Computer Interaction* under the supervision of Prof. Dr. Beat Signer.
 
 ## Contributing
-Use of OpenHPS, contributions and feedback is highly appreciated. Please read our [contributing guidelines](CONTRIBUTING.md) for more information.
+Use of OpenHPS, contributions and feedback is highly appreciated. Please read our [contributing guidelines](https://github.com/OpenHPS/.github/blob/master/CONTRIBUTING.md) for more information.
 
 ## License
 Copyright (C) 2019-2025 Maxim Van de Wynckel & Vrije Universiteit Brussel

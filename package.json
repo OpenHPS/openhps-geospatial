@@ -68,9 +68,9 @@
         "reflect-metadata": ">=0.2.2 <1"
     },
     "devDependencies": {
-        "@babel/cli": "^7.24.1",
-        "@babel/core": "^7.24.3",
-        "@babel/preset-env": "^7.24.3",
+        "@babel/cli": "^8.0.5",
+        "@babel/core": "^8.0.5",
+        "@babel/preset-env": "^8.0.5",
         "@commitlint/cli": "^19.8.1",
         "@commitlint/config-conventional": "^19.8.1",
         "@eslint/js": "^9.34.0",
@@ -102,7 +102,7 @@
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.66.0",
         "webpack": "^5.101.3",
-        "webpack-cli": "^6.0.1"
+        "webpack-cli": "^7.2.3"
     },
     "engines": {
         "node": ">=22.0.0"

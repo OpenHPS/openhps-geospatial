@@ -72,7 +72,7 @@
         "@babel/core": "^7.24.3",
         "@babel/preset-env": "^7.24.3",
         "@commitlint/cli": "^19.8.1",
-        "@commitlint/config-conventional": "^19.8.1",
+        "@commitlint/config-conventional": "^21.2.2",
         "@eslint/js": "^9.34.0",
         "@openhps/core": "^1.0.16",
         "@types/chai": "^5.2.2",

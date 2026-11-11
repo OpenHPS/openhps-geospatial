@@ -17,6 +17,7 @@ import {
     Absolute3DPosition,
 } from '@openhps/core';
 import { AbstractLocation } from './AbstractLocation';
+import { SpaceConnection, SpaceConnectionOptions } from './SpaceConnection';
 const wkt = require('wkt');
 
 /**
@@ -112,6 +113,13 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     centroid: AbsolutePosition;
     @SerializableMapMember(Vector3, String)
     protected connectedSpaces: Map<Vector3, string> = new Map();
+    /**
+     * Metadata for the connections in {@link connectedSpaces}: what a connection is (a door, an
+     * opening, a stairs link, ...) and how wide it is. The connection points themselves stay in
+     * the `connectedSpaces` map.
+     */
+    @SerializableArrayMember(SpaceConnection)
+    connections: SpaceConnection[] = [];
     @SerializableMember({
         constructor: Number,
     })
@@ -350,13 +358,87 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
 
     /**
      * Add a connected space
+     *
+     * The connection is recorded on both this space and, when it is called through
+     * [[connectAdjacentSpaces]], on the other space as well. Use `connection` to describe what
+     * the connection is; a connection without metadata is treated as `adjacent`.
      * @param {SymbolicSpace} space Connected space
-     * @param {AbsolutePosition} [position] Position of connection
+     * @param {AbsolutePosition} position Position of the connection
+     * @param {SpaceConnectionOptions} [connection] Connection metadata (kind and width)
      * @returns {SymbolicSpace} instance
      */
-    addConnectedSpace(space: SymbolicSpace<any>, position?: T): this {
+    addConnectedSpace(space: SymbolicSpace<any>, position?: T, connection: SpaceConnectionOptions = {}): this {
+        if (!position) {
+            throw new Error(`A connection position is required to connect "${this.uid}" to "${space.uid}"`);
+        }
+        for (const [vector, targetUID] of this.connectedSpaces) {
+            if (targetUID === space.uid) {
+                this.connectedSpaces.delete(vector);
+            }
+        }
         this.connectedSpaces.set(position.toVector3(), space.uid);
+        const existing = this.connections.find((entry) => entry.targetUID === space.uid);
+        if (existing) {
+            existing.position = position;
+            if (connection.type !== undefined) {
+                existing.type = connection.type;
+            }
+            if (connection.width !== undefined) {
+                existing.width = connection.width;
+            }
+        } else {
+            this.connections.push(
+                new SpaceConnection(space.uid, connection.type ?? 'adjacent', position, connection.width),
+            );
+        }
         return this;
+    }
+
+    /**
+     * Get the connections of this space with their metadata and connection points.
+     *
+     * Connections added through [[addConnectedSpace]] without metadata are returned as `adjacent`
+     * connections; their position is restored from the boundary map.
+     * @returns {SpaceConnection[]} The connections
+     */
+    getConnectedSpaces(): SpaceConnection[] {
+        const connections = this.connections.map(
+            (entry) => new SpaceConnection(entry.targetUID, entry.type, entry.position, entry.width),
+        );
+        for (const [vector, targetUID] of this.connectedSpaces) {
+            const existing = connections.find((entry) => entry.targetUID === targetUID);
+            if (existing) {
+                if (!existing.position) {
+                    existing.position = this.connectionPosition(vector);
+                }
+            } else {
+                connections.push(new SpaceConnection(targetUID, 'adjacent', this.connectionPosition(vector)));
+            }
+        }
+        return connections;
+    }
+
+    /**
+     * Get the connection to a specific space.
+     * @param {SymbolicSpace} space The connected space
+     * @returns {SpaceConnection} The connection, or `undefined` when the spaces are not connected
+     */
+    getConnection(space: SymbolicSpace<any>): SpaceConnection | undefined {
+        return this.getConnectedSpaces().find((entry) => entry.targetUID === space.uid);
+    }
+
+    /**
+     * Restores a position from a vector stored in the connection map.
+     * @param {Vector3} vector The stored connection vector
+     * @returns {AbsolutePosition} The position, of this space's boundary type
+     */
+    protected connectionPosition(vector: Vector3): AbsolutePosition {
+        if (!this.positionConstructor) {
+            return undefined;
+        }
+        const position = new this.positionConstructor();
+        position.fromVector(vector);
+        return position;
     }
 
     /**

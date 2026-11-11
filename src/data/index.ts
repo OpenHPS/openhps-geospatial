@@ -1,4 +1,5 @@
 export * from './SymbolicSpace';
+export * from './SpaceConnection';
 export * from './Room';
 export * from './Building';
 export * from './Floor';

@@ -17,7 +17,10 @@ import {
     Absolute3DPosition,
 } from '@openhps/core';
 import { AbstractLocation } from './AbstractLocation';
-const wkt = require('wkt');
+// A static import rather than require(): the ESM build must not contain CommonJS
+// require() calls, or Node rejects the module when it is loaded through the
+// "import" condition of the exports map.
+import * as wkt from 'wkt';
 
 /**
  * A symbolic space can be used to indicate an abstract space with a boundary.

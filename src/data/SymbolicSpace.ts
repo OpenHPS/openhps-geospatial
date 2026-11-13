@@ -2,6 +2,7 @@ import {
     SerializableArrayMember,
     SerializableObject,
     Vector3,
+    Absolute2DPosition,
     AbsolutePosition,
     ReferenceSpace,
     SerializableMapMember,
@@ -257,6 +258,41 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     }
 
     /**
+     * Flatten local bounds to the ground plane and, when a ceiling height is given,
+     * extrude them to that height. Used by spaces that derive their volume from a
+     * 2D footprint (floors, cell spaces).
+     * @param localBounds Local boundary positions
+     * @param ceilingHeight Ceiling height in meters
+     * @returns {Absolute3DPosition[]} The extruded bounds
+     */
+    protected extrudeArrayBounds(
+        localBounds: Absolute3DPosition[] | Absolute2DPosition[],
+        ceilingHeight?: number,
+    ): Absolute3DPosition[] {
+        // Geographical bounds are handled by the base implementation
+        if (localBounds.length > 0 && localBounds[0] instanceof GeographicalPosition) {
+            return localBounds as Absolute3DPosition[];
+        }
+        const bounds: Absolute3DPosition[] = localBounds.map((bound) => {
+            const vector = bound.toVector3();
+            return new Absolute3DPosition(vector.x, vector.y, 0);
+        });
+        if (ceilingHeight) {
+            bounds.push(
+                ...bounds.map((bound) => {
+                    const clonedBound = bound.clone();
+                    clonedBound.z = clonedBound.z + ceilingHeight;
+                    return clonedBound;
+                }),
+            );
+            if (localBounds.length === 2) {
+                bounds.splice(1, 2);
+            }
+        }
+        return bounds;
+    }
+
+    /**
      * Get the boundaries of the space
      * @returns {AbsolutePosition[]} Array of boundary position
      */
@@ -271,7 +307,17 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     protected updateCentroid(): void {
         this.centroid = new this.positionConstructor();
         this.centroid.referenceSpaceUID = this.uid;
-        const filteredCoordinates = this.coordinates.filter((e, i) => this.coordinates.indexOf(e) === i);
+        // De-duplicate by coordinate value: a closed boundary can repeat the first vertex as a
+        // different object, which an identity check would keep and double-count in the centroid
+        const seenCoordinates = new Set<string>();
+        const filteredCoordinates = this.coordinates.filter((coordinate) => {
+            const key = coordinate.toArray().join(',');
+            if (seenCoordinates.has(key)) {
+                return false;
+            }
+            seenCoordinates.add(key);
+            return true;
+        });
         const centerPoint = filteredCoordinates
             .reduce((a, b) => a.clone().add(b))
             .divideScalar(filteredCoordinates.length);
@@ -408,14 +454,20 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
         const connections = this.connections.map(
             (entry) => new SpaceConnection(entry.targetUID, entry.type, entry.position, entry.width),
         );
+        const byTarget = new Map<string, SpaceConnection>();
+        connections.forEach((entry) => {
+            byTarget.set(entry.targetUID, entry);
+        });
         for (const [vector, targetUID] of this.connectedSpaces) {
-            const existing = connections.find((entry) => entry.targetUID === targetUID);
+            const existing = byTarget.get(targetUID);
             if (existing) {
                 if (!existing.position) {
                     existing.position = this.connectionPosition(vector);
                 }
             } else {
-                connections.push(new SpaceConnection(targetUID, 'adjacent', this.connectionPosition(vector)));
+                const connection = new SpaceConnection(targetUID, 'adjacent', this.connectionPosition(vector));
+                byTarget.set(targetUID, connection);
+                connections.push(connection);
             }
         }
         return connections;
@@ -451,7 +503,10 @@ export class SymbolicSpace<T extends AbsolutePosition> extends ReferenceSpace {
     toPosition(): T {
         const centroid = this.centroid as T;
         const centroidVector = centroid.toVector3(LengthUnit.METER);
-        const maxDistance = this.coordinates.map((coord) => centroidVector.distanceTo(coord)).sort((a, b) => a - b)[0];
+        // The accuracy is the farthest boundary from the centroid: any position inside the
+        // space is at most that distance from the reported centroid
+        const distances = this.coordinates.map((coordinate) => centroidVector.distanceTo(coordinate));
+        const maxDistance = distances.length > 0 ? Math.max(...distances) : 0;
         centroid.accuracy = new Accuracy1D(maxDistance, LengthUnit.METER);
         return centroid;
     }

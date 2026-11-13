@@ -60,12 +60,15 @@ export class SymbolicSpaceService<T extends SymbolicSpace<any>> extends DataObje
                 const position = positionOrType;
                 this.findAll()
                     .then((results) => {
+                        const byUID = new Map<string, SymbolicSpace<any>>();
+                        results.forEach((res) => {
+                            byUID.set(res.uid, res);
+                        });
                         resolve(
                             results
                                 .map((res) => {
                                     if (res.parentUID) {
-                                        const parent = results.filter((r) => r.uid === res.parentUID);
-                                        res.parent = parent.length > 0 ? parent[0] : undefined;
+                                        res.parent = byUID.get(res.parentUID);
                                     }
                                     return res;
                                 })

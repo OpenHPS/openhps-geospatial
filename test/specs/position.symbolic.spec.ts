@@ -184,7 +184,8 @@ describe('SymbolicSpace', () => {
             ]);
 
         it('should get the accuracy of the centroid', () => {
-            expect(Math.round(building.toPosition().accuracy.value)).to.equal(35);
+            // Accuracy is the farthest boundary from the centroid (~half the building diagonal, ~38.8m)
+            expect(Math.round(building.toPosition().accuracy.value)).to.equal(39);
         });
 
         it('building should support rectangular boundaries', () => {
